@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Si-Pijar | Sistem Profiling Pengguna Jasa Karantina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        barantin: {
+                            teal: '#1A3636',   /* Dark Slate/Teal dari logo */
+                            gold: '#D4AF37',   /* Kuning Emas */
+                            brown: '#4A3B32',  /* Cokelat Tua */
+                            cream: '#FDFBF7'   /* Latar belakang cerah */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FDFBF7; }
+        .form-section {
+            border-left: 4px solid #D4AF37;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased font-sans">
+
+    <!-- Header -->
+    <header class="bg-barantin-teal text-white shadow-lg border-b-4 border-barantin-gold sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <!-- Pastikan gambar logo ada di repositori GitHub yang sama dengan nama ini -->
+                <img src="Logo_Badan_Karantina_Indonesia.jpg" alt="Logo Barantin" class="h-16 w-16 rounded-full border-2 border-barantin-gold object-cover bg-white">
+                <div>
+                    <h1 class="text-2xl font-bold text-barantin-gold tracking-wide">Si-Pijar</h1>
+                    <p class="text-sm font-light text-gray-200">Sistem Profiling Pengguna Jasa Karantina</p>
+                </div>
+            </div>
+            <div class="hidden md:block text-right">
+                <p class="text-xs text-barantin-gold font-semibold">Balai Karantina Hewan, Ikan, dan Tumbuhan</p>
+                <p class="text-xs text-gray-300">Kalimantan Utara</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <form id="reportForm" class="space-y-6">
+            
+            <!-- Dokumen Info -->
+            <div class="bg-barantin-teal text-white p-4 rounded-t-lg border-b-4 border-barantin-gold flex flex-col md:flex-row justify-between items-center shadow-md">
+                <div class="w-full md:w-2/3">
+                    <label class="block text-xs uppercase tracking-wider text-barantin-gold mb-1">Nomor Dokumen (Otomatis)</label>
+                    <input type="text" id="docNumber" readonly class="w-full bg-transparent text-lg font-bold border-none focus:ring-0 text-white placeholder-gray-400 p-0" placeholder="Akan di-generate otomatis...">
+                </div>
+                <div class="w-full md:w-1/3 mt-4 md:mt-0 text-right">
+                    <button type="button" onclick="generateDocNumber()" class="text-xs bg-barantin-gold text-barantin-teal px-3 py-1 rounded hover:bg-yellow-400 font-bold transition">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh No. Dokumen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bagian 1: Data Identitas -->
+            <div class="form-section mt-0 rounded-t-none">
+                <h2 class="text-xl font-bold text-barantin-teal mb-4 border-b pb-2"><i class="fas fa-user-tag mr-2 text-barantin-gold"></i>Data Pelanggar</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">1. Nama Lengkap</label>
+                        <input type="text" id="nama" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">2. Nomor Identitas (KTP/Paspor)</label>
+                        <input type="text" id="identitas" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">3. Foto ID (KTP/Paspor)</label>
+                        <!-- capture="environment" untuk langsung membuka kamera belakang di HP -->
+                        <input type="file" id="fotoId" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800" onchange="previewImage(this, 'previewId')">
+                        <img id="previewId" class="mt-2 hidden max-h-40 rounded border border-gray-300 shadow-sm" alt="Preview ID">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian 2: Detail Operasional -->
+            <div class="form-section">
+                <h2 class="text-xl font-bold text-barantin-teal mb-4 border-b pb-2"><i class="fas fa-map-marked-alt mr-2 text-barantin-gold"></i>Detail Operasional</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">4. Tanggal Laporan</label>
+                        <input type="date" id="tanggal" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">5. Satuan Pelayanan</label>
+                        <select id="satpel" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="generateDocNumber()">
+                            <!-- Default diatur ke Tarakan berdasarkan lokasi utama operasional -->
+                            <option value="TRK" selected>Tarakan (TRK)</option>
+                            <option value="NNK">Nunukan (NNK)</option>
+                            <option value="TJS">Tanjung Selor (TJS)</option>
+                            <option value="SBT">Sebatik (SBT)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">6. Bidang Karantina</label>
+                        <select id="bidang" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="generateDocNumber()">
+                            <option value="KH">Karantina Hewan (KH)</option>
+                            <option value="KI">Karantina Ikan (KI)</option>
+                            <option value="KT">Karantina Tumbuhan (KT)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <!-- Pelabuhan Muat -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">7. Pelabuhan Muat</label>
+                        <select id="pelabuhanMuat" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'pelabuhanMuatLainnya')">
+                            <option value="" disabled selected>Pilih Pelabuhan...</option>
+                            <option value="Pelabuhan Malundung">Pelabuhan Malundung</option>
+                            <option value="Pelabuhan Tunon Taka">Pelabuhan Tunon Taka</option>
+                            <option value="Pelabuhan Sungai Nyamuk">Pelabuhan Sungai Nyamuk</option>
+                            <option value="Pelabuhan Lim Hie Djung">Pelabuhan Lim Hie Djung</option>
+                            <option value="Pelabuhan Tengkayu 1">Pelabuhan Tengkayu 1</option>
+                            <option value="Pelabuhan Kayan II">Pelabuhan Kayan II</option>
+                            <option value="Pelabuhan Nusantara Pare-pare">Pelabuhan Nusantara Pare-pare</option>
+                            <option value="lainnya">Tambah Sendiri (Lainnya)...</option>
+                        </select>
+                        <input type="text" id="pelabuhanMuatLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
+                    </div>
+                    
+                    <!-- Pelabuhan Bongkar -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">8. Pelabuhan Bongkar</label>
+                        <select id="pelabuhanBongkar" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'pelabuhanBongkarLainnya')">
+                            <option value="" disabled selected>Pilih Pelabuhan...</option>
+                            <option value="Pelabuhan Malundung">Pelabuhan Malundung</option>
+                            <option value="Pelabuhan Tunon Taka">Pelabuhan Tunon Taka</option>
+                            <option value="Pelabuhan Sungai Nyamuk">Pelabuhan Sungai Nyamuk</option>
+                            <option value="Pelabuhan Lim Hie Djung">Pelabuhan Lim Hie Djung</option>
+                            <option value="Pelabuhan Tengkayu 1">Pelabuhan Tengkayu 1</option>
+                            <option value="Pelabuhan Kayan II">Pelabuhan Kayan II</option>
+                            <option value="Pelabuhan Nusantara Pare-pare">Pelabuhan Nusantara Pare-pare</option>
+                            <option value="lainnya">Tambah Sendiri (Lainnya)...</option>
+                        </select>
+                        <input type="text" id="pelabuhanBongkarLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
+                    </div>
+
+                    <!-- Alat Angkut -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">9. Alat Angkut</label>
+                        <select id="alatAngkut" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'alatAngkutLainnya')">
+                            <option value="" disabled selected>Pilih Alat Angkut...</option>
+                            <option value="MV. Indomaya Tiga">MV. Indomaya Tiga</option>
+                            <option value="MV. Kaltara Ekspress">MV. Kaltara Ekspress</option>
+                            <option value="MV. Bahagia">MV. Bahagia</option>
+                            <option value="lainnya">Tambah Sendiri (Lainnya)...</option>
+                        </select>
+                        <input type="text" id="alatAngkutLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama alat angkut...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian 3: Komoditas & Tindakan -->
+            <div class="form-section">
+                <h2 class="text-xl font-bold text-barantin-teal mb-4 border-b pb-2"><i class="fas fa-box-open mr-2 text-barantin-gold"></i>Detail Komoditas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">10. Media Pembawa</label>
+                        <input type="text" id="mediaPembawa" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="Contoh: Daging Sapi, Benih Sawit, dll.">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">11. Volume</label>
+                        <div class="flex">
+                            <input type="number" id="volume" required step="0.01" class="w-2/3 border border-gray-300 rounded-l-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent border-r-0" placeholder="Jumlah...">
+                            <select id="satuanVolume" class="w-1/3 border border-gray-300 rounded-r-md p-2 bg-gray-50 focus:ring-2 focus:ring-barantin-teal">
+                                <option value="Kg">Kg</option>
+                                <option value="Ton">Ton</option>
+                                <option value="Ekor">Ekor</option>
+                                <option value="Batang">Batang</option>
+                                <option value="Pcs">Pcs</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">12. Tindakan Karantina</label>
+                        <select id="tindakan" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                            <option value="" disabled selected>Pilih Tindakan...</option>
+                            <option value="Penahanan">Penahanan</option>
+                            <option value="Penolakan">Penolakan</option>
+                            <option value="Pemusnahan">Pemusnahan</option>
+                            <option value="Quarantine Bin">Quarantine Bin</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 mt-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">13. Dokumentasi (Komoditas)</label>
+                        <!-- Kamera langsung untuk foto komoditas -->
+                        <input type="file" id="fotoKomoditas" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800" onchange="previewImage(this, 'previewKomoditas')">
+                        <img id="previewKomoditas" class="mt-2 hidden max-h-40 rounded border border-gray-300 shadow-sm" alt="Preview Komoditas">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="w-full bg-barantin-teal text-barantin-gold font-bold text-lg py-4 rounded-lg shadow-lg hover:bg-teal-900 transition duration-300 border-2 border-barantin-gold flex justify-center items-center">
+                <i class="fas fa-paper-plane mr-2"></i> Kirim Laporan Pelanggaran
+            </button>
+            <p class="text-center text-xs text-gray-500 mt-2"><i class="fas fa-lock mr-1"></i> Data dienkripsi dan disimpan dengan aman di sistem.</p>
+        </form>
+    </main>
+
+    <script>
+        // === KONFIGURASI URL GOOGLE APPS SCRIPT ===
+        // Ganti URL ini dengan URL Web App dari Google Apps Script yang Anda buat sebelumnya
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp3fTfwskoJO47LcJOA2XCxg8lT1IUlQDLY8K9ArwQZ1Vv3mTgqZjdWsa6iw5qoDRK/exec';
+
+        // Set tanggal hari ini sebagai default
+        document.getElementById('tanggal').valueAsDate = new Date();
+
+        // Logika "Lainnya" pada dropdown
+        function toggleLainnya(selectElem, inputId) {
+            const inputElem = document.getElementById(inputId);
+            if (selectElem.value === 'lainnya') {
+                inputElem.classList.remove('hidden');
+                inputElem.required = true;
+            } else {
+                inputElem.classList.add('hidden');
+                inputElem.required = false;
+                inputElem.value = '';
+            }
+        }
+
+        // Preview Gambar
+        function previewImage(input, imgId) {
+            const preview = document.getElementById(imgId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = "";
+                preview.classList.add('hidden');
+            }
+        }
+
+        // Generate Nomor Dokumen: Bidang/Kode Satpel/No urut/Bulan/Tahun
+        function generateDocNumber() {
+            const bidang = document.getElementById('bidang').value;
+            const satpel = document.getElementById('satpel').value;
+            
+            const date = new Date(document.getElementById('tanggal').value || new Date());
+            const bulan = String(date.getMonth() + 1).padStart(2, '0');
+            const tahun = date.getFullYear();
+            
+            // Generate nomor urut pseudo-random (3 digit) untuk mencegah duplikasi di frontend
+            const randomUrut = String(Math.floor(Math.random() * 900) + 100);
+            
+            const docNum = `${bidang}/${satpel}/${randomUrut}/${bulan}/${tahun}`;
+            document.getElementById('docNumber').value = docNum;
+        }
+
+        // Generate saat halaman pertama dimuat
+        generateDocNumber();
+
+        // Fungsi mengubah file gambar menjadi Base64 string
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Logika Submit Form ke Google Apps Script
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyp3fTfwskoJO47LcJOA2XCxg8lT1IUlQDLY8K9ArwQZ1Vv3mTgqZjdWsa6iw5qoDRK/exec') {
+                alert('PERHATIAN: Anda belum memasukkan SCRIPT_URL Google Apps Script di dalam kode HTML.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            
+            // Ubah tombol jadi loading
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengunggah Data & Foto...';
+            submitBtn.disabled = true;
+            submitBtn.classList.replace('bg-barantin-teal', 'bg-gray-500');
+            submitBtn.classList.replace('border-barantin-gold', 'border-gray-500');
+
+            try {
+                const docNumber = document.getElementById('docNumber').value;
+                const fotoIdFile = document.getElementById('fotoId').files[0];
+                const fotoKomoditasFile = document.getElementById('fotoKomoditas').files[0];
+
+                // Konversi file ke base64 (Bisa memakan waktu beberapa detik tergantung ukuran foto)
+                const fotoIdBase64 = await getBase64(fotoIdFile);
+                const fotoKomoditasBase64 = await getBase64(fotoKomoditasFile);
+
+                const data = {
+                    noDokumen: docNumber,
+                    nama: document.getElementById('nama').value,
+                    identitas: document.getElementById('identitas').value,
+                    tanggal: document.getElementById('tanggal').value,
+                    satuanPelayanan: document.getElementById('satpel').value,
+                    bidang: document.getElementById('bidang').value,
+                    pelabuhanMuat: document.getElementById('pelabuhanMuat').value === 'lainnya' ? document.getElementById('pelabuhanMuatLainnya').value : document.getElementById('pelabuhanMuat').value,
+                    pelabuhanBongkar: document.getElementById('pelabuhanBongkar').value === 'lainnya' ? document.getElementById('pelabuhanBongkarLainnya').value : document.getElementById('pelabuhanBongkar').value,
+                    alatAngkut: document.getElementById('alatAngkut').value === 'lainnya' ? document.getElementById('alatAngkutLainnya').value : document.getElementById('alatAngkut').value,
+                    mediaPembawa: document.getElementById('mediaPembawa').value,
+                    volume: document.getElementById('volume').value,
+                    satuanVolume: document.getElementById('satuanVolume').value,
+                    tindakan: document.getElementById('tindakan').value,
+                    // Data gambar
+                    fotoIdBase64: fotoIdBase64,
+                    fotoIdName: fotoIdFile ? `${docNumber.replace(/\//g, '_')}_ID` : null,
+                    fotoKomoditasBase64: fotoKomoditasBase64,
+                    fotoKomoditasName: fotoKomoditasFile ? `${docNumber.replace(/\//g, '_')}_KOMODITAS` : null
+                };
+
+                // Kirim ke Google Apps Script (Metode POST tanpa cors restriction dari GAS)
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert(`SUKSES! Laporan dengan Nomor Dokumen ${docNumber} berhasil disimpan ke Google Sheets & Drive Anda.`);
+                    
+                    // Reset form dan preview
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('tanggal').valueAsDate = new Date();
+                    document.getElementById('previewId').classList.add('hidden');
+                    document.getElementById('previewKomoditas').classList.add('hidden');
+                    
+                    // Sembunyikan input 'lainnya' jika sebelumnya terbuka
+                    ['pelabuhanMuatLainnya', 'pelabuhanBongkarLainnya', 'alatAngkutLainnya'].forEach(id => {
+                        document.getElementById(id).classList.add('hidden');
+                    });
+
+                    generateDocNumber(); // Buat nomor baru
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error('Error detail:', error);
+                alert('Gagal menyimpan laporan. Pastikan URL Google Apps Script sudah benar dan jaringan stabil. Error: ' + error.message);
+            } finally {
+                // Kembalikan tombol ke kondisi semula
+                submitBtn.innerHTML = originalBtnHtml;
+                submitBtn.disabled = false;
+                submitBtn.classList.replace('bg-gray-500', 'bg-barantin-teal');
+                submitBtn.classList.replace('border-gray-500', 'border-barantin-gold');
+            }
+        });
+    </script>
+</body>
+</html>
