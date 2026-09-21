@@ -59,16 +59,10 @@
         <form id="reportForm" class="space-y-6">
             
             <!-- Dokumen Info -->
-            <div class="bg-barantin-teal text-white p-4 rounded-t-lg border-b-4 border-barantin-gold flex flex-col md:flex-row justify-between items-center shadow-md">
-                <div class="w-full md:w-2/3">
-                    <label class="block text-xs uppercase tracking-wider text-barantin-gold mb-1">Nomor Dokumen (Otomatis)</label>
-                    <input type="text" id="docNumber" readonly class="w-full bg-transparent text-lg font-bold border-none focus:ring-0 text-white placeholder-gray-400 p-0" placeholder="Akan di-generate otomatis...">
-                </div>
-                <div class="w-full md:w-1/3 mt-4 md:mt-0 text-right">
-                    <button type="button" onclick="generateDocNumber()" class="text-xs bg-barantin-gold text-barantin-teal px-3 py-1 rounded hover:bg-yellow-400 font-bold transition">
-                        <i class="fas fa-sync-alt mr-1"></i> Refresh No. Dokumen
-                    </button>
-                </div>
+            <div class="bg-barantin-teal text-white p-4 rounded-t-lg border-b-4 border-barantin-gold shadow-md text-center">
+                <label class="block text-xs uppercase tracking-wider text-barantin-gold mb-1">Nomor Dokumen</label>
+                <!-- Input ini tidak perlu diisi manual, akan tampil keterangan -->
+                <input type="text" id="docNumber" readonly value="[Berurutan Otomatis Setelah Dikirim]" class="w-full bg-transparent text-center text-lg font-bold border-none focus:ring-0 text-white placeholder-gray-400 p-0">
             </div>
 
             <!-- Bagian 1: Data Identitas -->
@@ -85,7 +79,6 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">3. Foto ID (KTP/Paspor)</label>
-                        <!-- capture="environment" untuk langsung membuka kamera belakang di HP -->
                         <input type="file" id="fotoId" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800" onchange="previewImage(this, 'previewId')">
                         <img id="previewId" class="mt-2 hidden max-h-40 rounded border border-gray-300 shadow-sm" alt="Preview ID">
                     </div>
@@ -102,8 +95,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">5. Satuan Pelayanan</label>
-                        <select id="satpel" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="generateDocNumber()">
-                            <!-- Default diatur ke Tarakan berdasarkan lokasi utama operasional -->
+                        <select id="satpel" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
                             <option value="TRK" selected>Tarakan (TRK)</option>
                             <option value="NNK">Nunukan (NNK)</option>
                             <option value="TJS">Tanjung Selor (TJS)</option>
@@ -112,7 +104,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">6. Bidang Karantina</label>
-                        <select id="bidang" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="generateDocNumber()">
+                        <select id="bidang" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
                             <option value="KH">Karantina Hewan (KH)</option>
                             <option value="KI">Karantina Ikan (KI)</option>
                             <option value="KT">Karantina Tumbuhan (KT)</option>
@@ -121,7 +113,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <!-- Pelabuhan Muat -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">7. Pelabuhan Muat</label>
                         <select id="pelabuhanMuat" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'pelabuhanMuatLainnya')">
@@ -138,7 +129,6 @@
                         <input type="text" id="pelabuhanMuatLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
                     </div>
                     
-                    <!-- Pelabuhan Bongkar -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">8. Pelabuhan Bongkar</label>
                         <select id="pelabuhanBongkar" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'pelabuhanBongkarLainnya')">
@@ -155,7 +145,6 @@
                         <input type="text" id="pelabuhanBongkarLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
                     </div>
 
-                    <!-- Alat Angkut -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">9. Alat Angkut</label>
                         <select id="alatAngkut" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'alatAngkutLainnya')">
@@ -203,7 +192,6 @@
                     </div>
                     <div class="md:col-span-2 mt-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">13. Dokumentasi (Komoditas)</label>
-                        <!-- Kamera langsung untuk foto komoditas -->
                         <input type="file" id="fotoKomoditas" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800" onchange="previewImage(this, 'previewKomoditas')">
                         <img id="previewKomoditas" class="mt-2 hidden max-h-40 rounded border border-gray-300 shadow-sm" alt="Preview Komoditas">
                     </div>
@@ -220,7 +208,6 @@
 
     <script>
         // === KONFIGURASI URL GOOGLE APPS SCRIPT ===
-        // Ganti URL ini dengan URL Web App dari Google Apps Script yang Anda buat sebelumnya
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp3fTfwskoJO47LcJOA2XCxg8lT1IUlQDLY8K9ArwQZ1Vv3mTgqZjdWsa6iw5qoDRK/exec';
 
         // Set tanggal hari ini sebagai default
@@ -255,25 +242,6 @@
             }
         }
 
-        // Generate Nomor Dokumen: Bidang/Kode Satpel/No urut/Bulan/Tahun
-        function generateDocNumber() {
-            const bidang = document.getElementById('bidang').value;
-            const satpel = document.getElementById('satpel').value;
-            
-            const date = new Date(document.getElementById('tanggal').value || new Date());
-            const bulan = String(date.getMonth() + 1).padStart(2, '0');
-            const tahun = date.getFullYear();
-            
-            // Generate nomor urut pseudo-random (3 digit) untuk mencegah duplikasi di frontend
-            const randomUrut = String(Math.floor(Math.random() * 900) + 100);
-            
-            const docNum = `${bidang}/${satpel}/${randomUrut}/${bulan}/${tahun}`;
-            document.getElementById('docNumber').value = docNum;
-        }
-
-        // Generate saat halaman pertama dimuat
-        generateDocNumber();
-
         // Fungsi mengubah file gambar menjadi Base64 string
         function getBase64(file) {
             return new Promise((resolve, reject) => {
@@ -292,31 +260,25 @@
         document.getElementById('reportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyp3fTfwskoJO47LcJOA2XCxg8lT1IUlQDLY8K9ArwQZ1Vv3mTgqZjdWsa6iw5qoDRK/exec') {
-                alert('PERHATIAN: Anda belum memasukkan SCRIPT_URL Google Apps Script di dalam kode HTML.');
-                return;
-            }
-
             const submitBtn = document.getElementById('submitBtn');
             const originalBtnHtml = submitBtn.innerHTML;
             
             // Ubah tombol jadi loading
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengunggah Data & Foto...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses & Menyimpan Data...';
             submitBtn.disabled = true;
             submitBtn.classList.replace('bg-barantin-teal', 'bg-gray-500');
             submitBtn.classList.replace('border-barantin-gold', 'border-gray-500');
 
             try {
-                const docNumber = document.getElementById('docNumber').value;
                 const fotoIdFile = document.getElementById('fotoId').files[0];
                 const fotoKomoditasFile = document.getElementById('fotoKomoditas').files[0];
 
-                // Konversi file ke base64 (Bisa memakan waktu beberapa detik tergantung ukuran foto)
+                // Konversi file ke base64
                 const fotoIdBase64 = await getBase64(fotoIdFile);
                 const fotoKomoditasBase64 = await getBase64(fotoKomoditasFile);
 
+                // Nomor Dokumen akan dibuat otomatis oleh Google Apps Script, tidak perlu dikirim dari sini
                 const data = {
-                    noDokumen: docNumber,
                     nama: document.getElementById('nama').value,
                     identitas: document.getElementById('identitas').value,
                     tanggal: document.getElementById('tanggal').value,
@@ -329,14 +291,11 @@
                     volume: document.getElementById('volume').value,
                     satuanVolume: document.getElementById('satuanVolume').value,
                     tindakan: document.getElementById('tindakan').value,
-                    // Data gambar
                     fotoIdBase64: fotoIdBase64,
-                    fotoIdName: fotoIdFile ? `${docNumber.replace(/\//g, '_')}_ID` : null,
-                    fotoKomoditasBase64: fotoKomoditasBase64,
-                    fotoKomoditasName: fotoKomoditasFile ? `${docNumber.replace(/\//g, '_')}_KOMODITAS` : null
+                    fotoKomoditasBase64: fotoKomoditasBase64
                 };
 
-                // Kirim ke Google Apps Script (Metode POST tanpa cors restriction dari GAS)
+                // Kirim ke Google Apps Script
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(data)
@@ -345,7 +304,8 @@
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    alert(`SUKSES! Laporan dengan Nomor Dokumen ${docNumber} berhasil disimpan ke Google Sheets & Drive Anda.`);
+                    // Alert ini menggunakan Nomor Dokumen yang dibalas oleh Google Apps Script backend
+                    alert(`SUKSES!\nLaporan berhasil disimpan.\nNomor Dokumen Anda: ${result.noDokumen}`);
                     
                     // Reset form dan preview
                     document.getElementById('reportForm').reset();
@@ -357,15 +317,13 @@
                     ['pelabuhanMuatLainnya', 'pelabuhanBongkarLainnya', 'alatAngkutLainnya'].forEach(id => {
                         document.getElementById(id).classList.add('hidden');
                     });
-
-                    generateDocNumber(); // Buat nomor baru
                 } else {
                     throw new Error(result.message);
                 }
 
             } catch (error) {
                 console.error('Error detail:', error);
-                alert('Gagal menyimpan laporan. Pastikan URL Google Apps Script sudah benar dan jaringan stabil. Error: ' + error.message);
+                alert('Gagal menyimpan laporan. Pastikan jaringan stabil. Error: ' + error.message);
             } finally {
                 // Kembalikan tombol ke kondisi semula
                 submitBtn.innerHTML = originalBtnHtml;
