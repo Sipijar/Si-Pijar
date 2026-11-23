@@ -44,7 +44,7 @@
             background: #ffffff;
             width: 210mm;
             min-height: 297mm;
-            padding: 14mm 18mm;
+            padding: 13mm 17mm;
             margin: 0 auto;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             box-sizing: border-box;
@@ -70,21 +70,24 @@
 
         /* Aturan Cetak (Print / Save as PDF) */
         @media print {
-            body * {
-                visibility: hidden;
+            html, body {
+                width: 210mm;
+                height: auto;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
             }
-            #baPrintModal, #baPrintModal * {
-                visibility: visible;
+            body > :not(#baPrintModal) {
+                display: none !important;
             }
             #baPrintModal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+                position: static !important;
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
                 background: #ffffff !important;
                 padding: 0 !important;
                 margin: 0 !important;
-                display: block !important;
                 overflow: visible !important;
             }
             .no-print {
@@ -92,10 +95,17 @@
             }
             .ba-paper {
                 box-shadow: none !important;
-                width: 100% !important;
+                width: 210mm !important;
                 min-height: auto !important;
                 padding: 10mm 14mm !important;
-                margin: 0 !important;
+                margin: 0 auto !important;
+            }
+            .ba-paper img {
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
             @page {
                 size: A4 portrait;
@@ -161,8 +171,16 @@
                         <input type="text" id="nama" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="Nama sesuai identitas">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">2. Nomor Identitas (NIK/NPWP/KTP/Paspor) <span class="text-red-500">*</span></label>
-                        <input type="text" id="identitas" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="NIK / Nomor Paspor">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">2. Nomor Identitas <span class="text-red-500">*</span></label>
+                        <div class="flex">
+                            <select id="jenisIdentitas" class="w-1/3 border border-gray-300 rounded-l-lg p-2.5 bg-gray-50 text-sm font-medium focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                                <option value="NIK" selected>NIK</option>
+                                <option value="NPWP">NPWP</option>
+                                <option value="KTP">KTP</option>
+                                <option value="Passpor">Passpor</option>
+                            </select>
+                            <input type="text" id="identitas" required class="w-2/3 border border-gray-300 rounded-r-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent border-l-0" placeholder="Nomor identitas...">
+                        </div>
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap (Untuk Berita Acara)</label>
@@ -310,7 +328,7 @@
                                 <select id="baKategoriMp" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white">
                                     <option value="Produk">Produk Hewan/Ikan/Tumbuhan</option>
                                     <option value="Utama">Hewan/Ikan/Tumbuhan</option>
-                                    <option value="Lain">Media Pembawa Lain</option>
+                                    <option value="Lain">Media Pembawa Lain Hewan/Ikan/Tumbuhan</option>
                                 </select>
                             </div>
                         </div>
@@ -332,12 +350,47 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">Tempat Dikeluarkan BA</label>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Dikeluarkan di</label>
                                 <input type="text" id="baTempatKeluar" value="Tarakan" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Contoh: Tarakan / Nunukan">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Keterangan Tambahan (Tabel Uraian)</label>
                                 <input type="text" id="baKeteranganMp" value="Dimasukkan ke Quarantine Bin" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Keterangan kondisi media pembawa">
+                            </div>
+                        </div>
+
+                        <!-- Panel Tanda Tangan Langsung (Pihak Pertama & Pihak Kedua) -->
+                        <div class="border-t border-amber-200 pt-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs font-bold text-barantin-teal">
+                                    <i class="fas fa-pen-nib mr-1 text-amber-600"></i> Tanda Tangan Langsung (Sentuh Layar / Mouse)
+                                </label>
+                                <span class="text-[11px] text-gray-500">Opsional • Otomatis muncul di PDF</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-white border border-gray-300 rounded-lg p-2.5">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="text-xs font-semibold text-gray-700">Tanda Tangan Pihak Pertama</span>
+                                        <button type="button" onclick="clearSignaturePad('p1')" class="text-[11px] text-red-600 hover:text-red-800 font-semibold flex items-center">
+                                            <i class="fas fa-eraser mr-1"></i> Hapus
+                                        </button>
+                                    </div>
+                                    <div class="border border-dashed border-gray-400 rounded bg-gray-50/70 touch-none overflow-hidden" style="height: 110px;">
+                                        <canvas id="sigCanvasP1" class="w-full h-full block cursor-crosshair"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white border border-gray-300 rounded-lg p-2.5">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="text-xs font-semibold text-gray-700">Tanda Tangan Pihak Kedua</span>
+                                        <button type="button" onclick="clearSignaturePad('p2')" class="text-[11px] text-red-600 hover:text-red-800 font-semibold flex items-center">
+                                            <i class="fas fa-eraser mr-1"></i> Hapus
+                                        </button>
+                                    </div>
+                                    <div class="border border-dashed border-gray-400 rounded bg-gray-50/70 touch-none overflow-hidden" style="height: 110px;">
+                                        <canvas id="sigCanvasP2" class="w-full h-full block cursor-crosshair"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -434,7 +487,7 @@
         </div>
     </div>
 
-    <!-- MODAL BERITA ACARA SERAH TERIMA QUARANTINE BIN (FORMAT 1) -->
+    <!-- MODAL BERITA ACARA SERAH TERIMA QUARANTINE BIN (FORMAT 1 - SESUAI PDF) -->
     <div id="baPrintModal" class="fixed inset-0 bg-black/80 z-50 hidden overflow-y-auto p-2 sm:p-6">
         <!-- Toolbar Atas (Tidak ikut tercetak) -->
         <div class="no-print max-w-[210mm] mx-auto mb-4 bg-barantin-teal text-white px-4 py-3 rounded-xl shadow-lg border border-barantin-gold flex flex-wrap items-center justify-between gap-3">
@@ -457,25 +510,20 @@
 
         <!-- Lembar Dokumen Resmi A4 -->
         <div id="baPaperContent" class="ba-paper">
-            <!-- Baris Format 1 Pojok Kanan Atas -->
-            <div style="text-align: right; font-size: 10pt; font-weight: bold; margin-bottom: 4px;">
-                Format 1
-            </div>
-
             <!-- KOP SURAT RESMI BARANTIN -->
-            <table style="width: 100%; border-collapse: collapse; border-bottom: 3px double #000000; padding-bottom: 6px; margin-bottom: 12px;">
+            <table style="width: 100%; border-collapse: collapse; border-bottom: 3px double #000000; padding-bottom: 6px; margin-bottom: 10px;">
                 <tr>
-                    <td style="width: 82px; vertical-align: middle; text-align: center; padding-bottom: 6px;">
-                        <img src="Logo_Badan_Karantina_Indonesia.png" onerror="this.src='https://placehold.co/90x90/1A3636/D4AF37?text=BARANTIN'" alt="Logo Barantin" style="width: 74px; height: 74px; object-fit: contain;">
+                    <td style="width: 84px; vertical-align: middle; text-align: center; padding-bottom: 6px;">
+                        <img src="Logo_Badan_Karantina_Indonesia.png" onerror="this.src='https://placehold.co/90x90/1A3636/D4AF37?text=BARANTIN'" alt="Logo Barantin" style="width: 76px; height: 76px; object-fit: contain;">
                     </td>
                     <td class="ba-kop-title" style="text-align: center; vertical-align: middle; padding-bottom: 6px;">
-                        <div style="font-size: 12pt; font-weight: bold; letter-spacing: 0.3px; line-height: 1.2;">
+                        <div style="font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; line-height: 1.2;">
                             BADAN KARANTINA INDONESIA
                         </div>
-                        <div style="font-size: 13pt; font-weight: bold; letter-spacing: 0.3px; line-height: 1.25;">
+                        <div style="font-size: 12.5pt; font-weight: bold; letter-spacing: 0.3px; line-height: 1.2;">
                             BALAI KARANTINA HEWAN, IKAN DAN TUMBUHAN<br>KALIMANTAN UTARA
                         </div>
-                        <div style="font-size: 8.5pt; line-height: 1.3; margin-top: 3px;">
+                        <div style="font-size: 8.5pt; line-height: 1.3; margin-top: 2px;">
                             Jl. Yos Sudarso No.11 RT.04, Kel. Lingkas Ujung, Kec. Tarakan Timur, Kota Tarakan - Kalimantan Utara 77126<br>
                             TELEPON (0551) 21526, 08115442414 FAKSIMILE (0551) 36508<br>
                             WEBSITE karantinaindonesia.go.id/kalimantanutara<br>
@@ -486,192 +534,195 @@
             </table>
 
             <!-- JUDUL BERITA ACARA -->
-            <div style="text-align: center; margin-top: 10px; margin-bottom: 14px;">
-                <div style="font-size: 11.5pt; font-weight: bold; text-decoration: underline; line-height: 1.35;">
+            <div style="text-align: center; margin-top: 8px; margin-bottom: 12px;">
+                <div style="font-size: 11pt; font-weight: bold; text-decoration: underline; line-height: 1.35;">
                     BERITA ACARA SERAH TERIMA MEDIA PEMBAWA<br>
                     UNTUK PEMUSNAHAN PADA TEMPAT SAMPAH KARANTINA
                 </div>
-                <div style="font-size: 11pt; margin-top: 4px;">
-                    Nomor: <span id="outBaNomor">........................................................</span>
+                <div style="font-size: 10.5pt; margin-top: 3px;">
+                    Nomor: <span id="outBaNomor"></span>
                 </div>
             </div>
 
-            <!-- PARAGRAF PEMBUKA -->
-            <p style="font-size: 11pt; line-height: 1.5; text-align: justify; margin-bottom: 12px;">
-                Pada hari ini <strong id="outBaHari">............</strong>, tanggal <strong id="outBaTanggalTeks">....................</strong> bulan <strong id="outBaBulan">............</strong> tahun <strong id="outBaTahun">........</strong> pukul <strong id="outBaPukul">........</strong> WITA, telah diserahkan Media Pembawa, dengan keterangan sebagai berikut :
+            <!-- PARAGRAF PEMBUKA (PERSIS SEPERTI PDF) -->
+            <p style="font-size: 10.5pt; line-height: 1.45; text-align: left; margin-bottom: 10px;">
+                Pada hari ini, tanggal <strong id="outBaTanggal"></strong> bulan <strong id="outBaBulan"></strong> tahun <strong id="outBaTahun"></strong> pukul <strong id="outBaPukul"></strong> telah diserahkan Media Pembawa, dengan keterangan sebagai berikut :
             </p>
 
-            <!-- BLOK PIHAK PERTAMA & PIHAK KEDUA (2 KOLOM SEJAJAR SEPERTI PDF) -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-bottom: 12px;">
-                <tr>
-                    <!-- Kolom Pihak Pertama -->
-                    <td style="width: 50%; vertical-align: top; padding-right: 10px;">
-                        <div style="font-weight: bold; margin-bottom: 4px;">Pihak Pertama</div>
-                        <table class="ba-no-border" style="width: 100%; font-size: 10.5pt;">
-                            <tr>
-                                <td style="width: 125px;">Nama</td>
-                                <td style="width: 10px;">:</td>
-                                <td id="outP1Nama" style="font-weight: bold;">-</td>
-                            </tr>
-                            <tr>
-                                <td>Alamat</td>
-                                <td>:</td>
-                                <td id="outP1Alamat">-</td>
-                            </tr>
-                            <tr>
-                                <td>NIK/NPWP/KTP/Paspor</td>
-                                <td>:</td>
-                                <td id="outP1Identitas">-</td>
-                            </tr>
-                        </table>
-                    </td>
-
-                    <!-- Kolom Pihak Kedua -->
-                    <td style="width: 50%; vertical-align: top; padding-left: 10px;">
-                        <div style="font-weight: bold; margin-bottom: 4px;">Pihak Kedua (Pejabat Karantina)</div>
-                        <table class="ba-no-border" style="width: 100%; font-size: 10.5pt;">
-                            <tr>
-                                <td style="width: 65px;">Nama</td>
-                                <td style="width: 10px;">:</td>
-                                <td id="outP2Nama" style="font-weight: bold;">-</td>
-                            </tr>
-                            <tr>
-                                <td>NIP</td>
-                                <td>:</td>
-                                <td id="outP2Nip">-</td>
-                            </tr>
-                            <tr>
-                                <td>Jabatan</td>
-                                <td>:</td>
-                                <td id="outP2Jabatan">-</td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+            <!-- 1. TABEL IDENTITAS (2 KOLOM SEJAJAR, BORDER HITAM TIPIS 1PX, TIMES NEW ROMAN) -->
+            <table class="ba-table" style="width: 100%; font-size: 10pt; margin-bottom: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width: 50%; text-align: left; font-weight: bold;">Pihak Pertama</th>
+                        <th style="width: 50%; text-align: left; font-weight: bold;">Pihak Kedua (Pejabat Karantina)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 0; vertical-align: top;">
+                            <table class="ba-no-border" style="width: 100%; font-size: 10pt;">
+                                <tr>
+                                    <td style="width: 138px; padding: 3px 6px;">Nama :</td>
+                                    <td id="outP1Nama" style="padding: 3px 6px;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 3px 6px;">Alamat :</td>
+                                    <td id="outP1Alamat" style="padding: 3px 6px;"></td>
+                                </tr>
+                                <tr>
+                                    <td id="outP1LabelIdentitas" style="padding: 3px 6px;">NIK/NPWP/KTP/Passpor :</td>
+                                    <td id="outP1Identitas" style="padding: 3px 6px;"></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="padding: 0; vertical-align: top;">
+                            <table class="ba-no-border" style="width: 100%; font-size: 10pt;">
+                                <tr>
+                                    <td style="width: 78px; padding: 3px 6px;">Nama :</td>
+                                    <td id="outP2Nama" style="padding: 3px 6px;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 3px 6px;">NIP :</td>
+                                    <td id="outP2Nip" style="padding: 3px 6px;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 3px 6px;">Jabatan :</td>
+                                    <td id="outP2Jabatan" style="padding: 3px 6px;"></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
 
-            <!-- PENGANTAR TABEL -->
-            <p style="font-size: 11pt; margin-bottom: 8px;">
+            <!-- 2. KALIMAT PENGANTAR DI BAWAH TABEL -->
+            <p style="font-size: 10.5pt; margin-bottom: 8px;">
                 Pihak Pertama Menyerahkan Media Pembawa kepada Pihak Kedua berupa :
             </p>
 
-            <!-- BAGIAN I: URAIAN MEDIA PEMBAWA -->
-            <div style="font-size: 11pt; font-weight: bold; margin-bottom: 6px;">
-                I. &nbsp;&nbsp;Uraian Media Pembawa**)
-            </div>
-
-            <!-- CHECKBOX KATEGORI MEDIA PEMBAWA -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-bottom: 8px;">
-                <tr>
-                    <td style="width: 34%; vertical-align: top;">
-                        <span id="chkUtama" style="font-size: 12pt;">&#9744;</span> <span id="lblUtama">Hewan/Ikan/Tumbuhan*)</span>
-                    </td>
-                    <td style="width: 36%; vertical-align: top;">
-                        <span id="chkProduk" style="font-size: 12pt;">&#9744;</span> <span id="lblProduk">Produk Hewan/Ikan/Tumbuhan*)</span>
-                    </td>
-                    <td style="width: 30%; vertical-align: top;">
-                        <span id="chkLain" style="font-size: 12pt;">&#9744;</span> <span id="lblLain">Media Pembawa Lain Hewan/Ikan/Tumbuhan*)</span>
-                    </td>
-                </tr>
-            </table>
-
-            <!-- TABEL KOMODITAS -->
-            <table class="ba-table" style="font-size: 10.5pt; margin-bottom: 14px;">
+            <!-- 3. BLOK BAGIAN I: URAIAN MEDIA PEMBAWA**) -->
+            <table class="ba-table" style="font-size: 10pt; margin-bottom: 12px;">
                 <thead>
-                    <tr style="background-color: #f3f4f6; text-align: center;">
-                        <th style="width: 38px;">No</th>
+                    <tr>
+                        <th colspan="5" style="background-color: #d9d9d9; text-align: left; font-weight: bold; padding: 5px 8px;">
+                            I. &nbsp;&nbsp;Uraian Media Pembawa**)
+                        </th>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="padding: 5px 8px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10pt;">
+                                <tr>
+                                    <td style="width: 31%; vertical-align: top; padding-right: 6px;">
+                                        <span id="chkUtama" style="font-size: 11pt;">&#9744;</span> <span id="lblUtama">Hewan/Ikan/Tumbuhan*)</span>
+                                    </td>
+                                    <td style="width: 33%; vertical-align: top; padding-right: 6px;">
+                                        <span id="chkProduk" style="font-size: 11pt;">&#9744;</span> <span id="lblProduk">Produk Hewan/Ikan/Tumbuhan*)</span>
+                                    </td>
+                                    <td style="width: 36%; vertical-align: top;">
+                                        <span id="chkLain" style="font-size: 11pt;">&#9744;</span> <span id="lblLain">Media Pembawa Lain Hewan/Ikan/Tumbuhan*)</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="text-align: center; font-weight: bold;">
+                        <th style="width: 42px;">No</th>
                         <th>Media Pembawa</th>
-                        <th style="width: 80px;">Jumlah</th>
-                        <th style="width: 80px;">Satuan</th>
-                        <th style="width: 175px;">Keterangan</th>
+                        <th style="width: 78px;">Jumlah</th>
+                        <th style="width: 78px;">Satuan</th>
+                        <th style="width: 170px;">Keterangan</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="text-align: center;">1.</td>
-                        <td id="outTblMediaPembawa">-</td>
-                        <td id="outTblJumlah" style="text-align: center;">-</td>
-                        <td id="outTblSatuan" style="text-align: center;">-</td>
-                        <td id="outTblKeterangan">-</td>
+                        <td id="outTblMediaPembawa"></td>
+                        <td id="outTblJumlah" style="text-align: center;"></td>
+                        <td id="outTblSatuan" style="text-align: center;"></td>
+                        <td id="outTblKeterangan"></td>
                     </tr>
                     <tr>
-                        <td style="height: 22px;"></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td style="height: 68px; vertical-align: top; text-align: center;"></td>
+                        <td style="height: 68px; vertical-align: top;"></td>
+                        <td style="height: 68px; vertical-align: top;"></td>
+                        <td style="height: 68px; vertical-align: top;"></td>
+                        <td style="height: 68px; vertical-align: top;"></td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- BAGIAN II: RINCIAN KETERANGAN -->
-            <div style="font-size: 11pt; font-weight: bold; margin-bottom: 6px;">
-                II. &nbsp;Rincian Keterangan
-            </div>
-            <table class="ba-no-border" style="width: 100%; font-size: 10.5pt; margin-left: 14px; margin-bottom: 14px;">
-                <tr>
-                    <td style="width: 210px;">Tempat Pengeluaran</td>
-                    <td style="width: 12px;">:</td>
-                    <td id="outRincianPengeluaran">-</td>
-                </tr>
-                <tr>
-                    <td>Tempat Pemasukan</td>
-                    <td>:</td>
-                    <td id="outRincianPemasukan">-</td>
-                </tr>
-                <tr>
-                    <td>Jenis dan Identitas Alat Angkut</td>
-                    <td>:</td>
-                    <td id="outRincianAlatAngkut">-</td>
-                </tr>
-                <tr>
-                    <td>Tanggal Tiba/Berangkat</td>
-                    <td>:</td>
-                    <td id="outRincianTanggalTiba">-</td>
-                </tr>
+            <!-- 4. BLOK BAGIAN II: RINCIAN KETERANGAN (GRID 2X2 DENGAN HEADER ABU-ABU) -->
+            <table class="ba-table" style="font-size: 10pt; margin-bottom: 12px;">
+                <thead>
+                    <tr>
+                        <th colspan="2" style="background-color: #d9d9d9; text-align: left; font-weight: bold; padding: 5px 8px;">
+                            II. &nbsp;Rincian Keterangan
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="width: 50%; height: 54px; vertical-align: top; padding: 5px 8px;">
+                            <div style="font-size: 10pt; margin-bottom: 4px;">Tempat Pengeluaran:</div>
+                            <div id="outRincianPengeluaran" style="font-size: 10pt;"></div>
+                        </td>
+                        <td style="width: 50%; height: 54px; vertical-align: top; padding: 5px 8px;">
+                            <div style="font-size: 10pt; margin-bottom: 4px;">Tempat Pemasukan:</div>
+                            <div id="outRincianPemasukan" style="font-size: 10pt;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; height: 54px; vertical-align: top; padding: 5px 8px;">
+                            <div style="font-size: 10pt; margin-bottom: 4px;">Jenis dan Identitas Alat Angkut:</div>
+                            <div id="outRincianAlatAngkut" style="font-size: 10pt;"></div>
+                        </td>
+                        <td style="width: 50%; height: 54px; vertical-align: top; padding: 5px 8px;">
+                            <div style="font-size: 10pt; margin-bottom: 4px;">Tanggal Tiba/Berangkat:</div>
+                            <div id="outRincianTanggalTiba" style="font-size: 10pt;"></div>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
 
-            <!-- KALIMAT PENUTUP -->
-            <p style="font-size: 11pt; line-height: 1.5; text-align: justify; margin-bottom: 18px;">
-                Untuk selanjutnya dilakukan pemusnahan melalui tempat sampah karantina (<em>quarantine bin</em>) sesuai peraturan perundangan dibidang karantina yang berlaku.
+            <!-- KALIMAT PENUTUP (PERSIS SEPERTI PDF) -->
+            <p style="font-size: 10.5pt; line-height: 1.45; text-align: left; margin-bottom: 16px;">
+                Untuk selanjutnya dilakukan pemusnahan melalui tempat sampah karantina (quarantine bin) sesuai peraturan perundangan dibidang karantina yang berlaku.
             </p>
 
-            <!-- BLOK TANDA TANGAN -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-top: 8px;">
+            <!-- BLOK TANDA TANGAN (PERSIS SEPERTI PDF, FORMAT TIDAK BERUBAH) -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-top: 6px;">
                 <tr>
                     <td style="width: 50%; text-align: center; vertical-align: top;">
                         <div style="height: 36px;"></div>
                         <div>Pihak Pertama</div>
-                        <div style="height: 62px;"></div>
-                        <div id="outSignP1" style="font-weight: bold; text-decoration: underline;">( ........................................ )</div>
+                        <div style="height: 58px; text-align: center; vertical-align: middle; line-height: 58px;">
+                            <img id="outSigImgP1" src="" alt="TTD Pihak Pertama" style="max-height: 54px; max-width: 155px; width: auto; height: auto; object-fit: contain; vertical-align: middle; display: none;">
+                        </div>
+                        <div id="outSignP1"></div>
                     </td>
                     <td style="width: 50%; text-align: center; vertical-align: top;">
-                        <div>Dikeluarkan di <span id="outSignTempat">Tarakan</span></div>
-                        <div>Tanggal, <span id="outSignTanggal">....................</span></div>
+                        <div>Dikeluarkan di <span id="outSignTempat"></span></div>
+                        <div>Tanggal, <span id="outSignTanggal"></span></div>
                         <div style="margin-top: 2px;">Pihak Kedua</div>
-                        <div style="height: 62px;"></div>
-                        <div id="outSignP2" style="font-weight: bold; text-decoration: underline;">( ........................................ )</div>
-                        <div>NIP. <span id="outSignNip">........................................</span></div>
+                        <div style="height: 58px; text-align: center; vertical-align: middle; line-height: 58px;">
+                            <img id="outSigImgP2" src="" alt="TTD Pihak Kedua" style="max-height: 54px; max-width: 155px; width: auto; height: auto; object-fit: contain; vertical-align: middle; display: none;">
+                        </div>
+                        <div id="outSignP2"></div>
+                        <div>NIP. <span id="outSignNip"></span></div>
                     </td>
                 </tr>
             </table>
 
             <!-- CATATAN KAKI -->
-            <div style="font-size: 9.5pt; margin-top: 18px;">
+            <div style="font-size: 9.5pt; margin-top: 16px;">
                 *) Coret yang tidak perlu
-            </div>
-
-            <!-- FOOTER BSrE BSSN SEPERTI CONTOH PDF -->
-            <div style="margin-top: 24px; padding-top: 8px; border-top: 1px solid #cbd5e1; text-align: center; font-size: 8.5pt; color: #334155; font-family: Arial, Helvetica, sans-serif;">
-                Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik<br>
-                yang diterbitkan oleh Balai Besar Sertifikasi Elektronik (BSrE), Badan Siber dan Sandi Negara (BSSN).
             </div>
         </div>
     </div>
 
     <script>
         // === KONFIGURASI URL GOOGLE APPS SCRIPT ===
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4O3ONQR5VZicavOcITFm2eOciHavb1x_yasydiG6DSel3b47YoYKu9xelgKd2psVF/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlLYx301CZX7GLe7RewGsgMUVoqQsCBCmbVB27Xh5Kd4iXEOH5EjiHJLvrgeR8bnJ0/exec';
 
         // === KONFIGURASI INDEXEDDB ===
         const DB_NAME = 'SiPijarBarantinDB';
@@ -679,6 +730,9 @@
         const STORE_NAME = 'laporan_pelanggaran';
         let dbInstance = null;
 
+        /**
+         * Menginisialisasi database IndexedDB lokal untuk menyimpan laporan & tanda tangan.
+         */
         function initIndexedDB() {
             return new Promise((resolve, reject) => {
                 if (!window.indexedDB) {
@@ -791,10 +845,130 @@
             const qbSection = document.getElementById('quarantineBinFields');
             if (tindakan === 'Quarantine Bin') {
                 qbSection.classList.remove('hidden');
+                resizeSignaturePads();
             } else {
                 qbSection.classList.add('hidden');
             }
         }
+
+        // === TANDA TANGAN LANGSUNG (CANVAS SENTUH & MOUSE) ===
+        const sigPads = {
+            p1: { canvas: null, ctx: null, drawing: false, hasStroke: false },
+            p2: { canvas: null, ctx: null, drawing: false, hasStroke: false }
+        };
+
+        /**
+         * Menyiapkan kanvas tanda tangan berbasis mouse & layar sentuh.
+         */
+        function setupSignaturePad(key, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            sigPads[key].canvas = canvas;
+            sigPads[key].ctx = ctx;
+
+            const getPos = (evt) => {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = evt.touches && evt.touches.length > 0 ? evt.touches[0].clientX : evt.clientX;
+                const clientY = evt.touches && evt.touches.length > 0 ? evt.touches[0].clientY : evt.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            };
+
+            const startDraw = (evt) => {
+                evt.preventDefault();
+                const pos = getPos(evt);
+                sigPads[key].drawing = true;
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            };
+
+            const moveDraw = (evt) => {
+                if (!sigPads[key].drawing) return;
+                evt.preventDefault();
+                const pos = getPos(evt);
+                ctx.lineWidth = 2.2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#111827';
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                sigPads[key].hasStroke = true;
+            };
+
+            const endDraw = (evt) => {
+                if (!sigPads[key].drawing) return;
+                evt.preventDefault();
+                sigPads[key].drawing = false;
+                ctx.closePath();
+            };
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', moveDraw);
+            window.addEventListener('mouseup', endDraw);
+
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', moveDraw, { passive: false });
+            canvas.addEventListener('touchend', endDraw, { passive: false });
+        }
+
+        function resizeSignaturePadSingle(key) {
+            const pad = sigPads[key];
+            if (!pad || !pad.canvas) return;
+            const rect = pad.canvas.parentElement.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
+
+            const prevDataUrl = pad.hasStroke ? pad.canvas.toDataURL('image/png') : null;
+            const dpr = Math.max(window.devicePixelRatio || 1, 1);
+
+            pad.canvas.width = Math.round(rect.width * dpr);
+            pad.canvas.height = Math.round(rect.height * dpr);
+
+            pad.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            pad.ctx.scale(dpr, dpr);
+
+            if (prevDataUrl) {
+                const img = new Image();
+                img.onload = () => {
+                    pad.ctx.drawImage(img, 0, 0, rect.width, rect.height);
+                };
+                img.src = prevDataUrl;
+            }
+        }
+
+        function resizeSignaturePads() {
+            resizeSignaturePadSingle('p1');
+            resizeSignaturePadSingle('p2');
+        }
+
+        function clearSignaturePad(key) {
+            const pad = sigPads[key];
+            if (!pad || !pad.canvas || !pad.ctx) return;
+            const rect = pad.canvas.parentElement.getBoundingClientRect();
+            pad.ctx.save();
+            pad.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            pad.ctx.clearRect(0, 0, pad.canvas.width, pad.canvas.height);
+            pad.ctx.restore();
+            pad.hasStroke = false;
+            if (rect.width && rect.height) {
+                const dpr = Math.max(window.devicePixelRatio || 1, 1);
+                pad.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                pad.ctx.scale(dpr, dpr);
+            }
+        }
+
+        /**
+         * Mengambil tanda tangan kanvas sebagai data URL PNG transparan apabila sudah digambar.
+         */
+        function getSignatureDataUrl(key) {
+            const pad = sigPads[key];
+            if (!pad || !pad.canvas || !pad.hasStroke) return null;
+            return pad.canvas.toDataURL('image/png');
+        }
+
+        window.addEventListener('resize', resizeSignaturePads);
 
         // Sinkronisasi otomatis tempat pengeluaran BA sesuai pilihan Satpel
         document.getElementById('satpel').addEventListener('change', function() {
@@ -808,10 +982,10 @@
         });
 
         /**
-         * Mengisi template Berita Acara Format 1 dan membuka modal cetak
+         * Mengisi template Berita Acara Format 1 (termasuk tanda tangan Pihak I & II)
+         * tanpa mengubah format dokumen PDF, lalu membuka modal cetak.
          */
         function openBeritaAcaraModal(data) {
-            const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const namaBulan = [
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -820,29 +994,29 @@
             let tglObj = data.tanggal ? new Date(data.tanggal + 'T00:00:00') : new Date();
             if (isNaN(tglObj.getTime())) tglObj = new Date();
 
-            const hariStr = namaHari[tglObj.getDay()];
             const tanggalAngka = String(tglObj.getDate()).padStart(2, '0');
             const bulanStr = namaBulan[tglObj.getMonth()];
-            const tahunStr = tglObj.getFullYear();
+            const tahunStr = String(tglObj.getFullYear());
             const tanggalLengkap = `${tanggalAngka} ${bulanStr} ${tahunStr}`;
 
-            // Header & Pembuka
-            document.getElementById('outBaNomor').textContent = data.baNomor || `BA.${data.localId || '001'}/K.17.B/${String(tglObj.getMonth() + 1).padStart(2, '0')}/${tahunStr}`;
-            document.getElementById('outBaHari').textContent = hariStr;
-            document.getElementById('outBaTanggalTeks').textContent = tanggalAngka;
+            // Nomor & Pembuka
+            document.getElementById('outBaNomor').textContent = data.baNomor || '';
+            document.getElementById('outBaTanggal').textContent = tanggalAngka;
             document.getElementById('outBaBulan').textContent = bulanStr;
             document.getElementById('outBaTahun').textContent = tahunStr;
-            document.getElementById('outBaPukul').textContent = data.baPukul || '--:--';
+            document.getElementById('outBaPukul').textContent = data.baPukul || '';
 
             // Pihak Pertama
-            document.getElementById('outP1Nama').textContent = data.nama || '-';
-            document.getElementById('outP1Alamat').textContent = data.alamatPelanggar || '-';
-            document.getElementById('outP1Identitas').textContent = data.identitas || '-';
+            document.getElementById('outP1Nama').textContent = data.nama || '';
+            document.getElementById('outP1Alamat').textContent = data.alamatPelanggar || '';
+            const jenisIdTerpilih = data.jenisIdentitas || 'NIK/NPWP/KTP/Passpor';
+            document.getElementById('outP1LabelIdentitas').textContent = `${jenisIdTerpilih} :`;
+            document.getElementById('outP1Identitas').textContent = data.identitas || '';
 
             // Pihak Kedua (Pejabat Karantina)
-            document.getElementById('outP2Nama').textContent = data.baPejabatNama || '........................................';
-            document.getElementById('outP2Nip').textContent = data.baPejabatNip || '........................................';
-            document.getElementById('outP2Jabatan').textContent = data.baPejabatJabatan || 'Pejabat Karantina';
+            document.getElementById('outP2Nama').textContent = data.baPejabatNama || '';
+            document.getElementById('outP2Nip').textContent = data.baPejabatNip || '';
+            document.getElementById('outP2Jabatan').textContent = data.baPejabatJabatan || '';
 
             // Checkbox Kategori Media Pembawa
             const kat = data.baKategoriMp || 'Produk';
@@ -850,36 +1024,59 @@
             document.getElementById('chkProduk').innerHTML = kat === 'Produk' ? '&#9745;' : '&#9744;';
             document.getElementById('chkLain').innerHTML = kat === 'Lain' ? '&#9745;' : '&#9744;';
 
-            // Coret otomatis jenis bidang yang tidak sesuai (KH / KI / KT)
+            // Coret hanya pada kotak (☑) yang tercentang sesuai Bidang Karantina (KH / KI / KT)
             const bidang = data.bidang || 'KH';
-            const formatBidangCoret = (prefix) => {
+            const formatBidangCoret = (prefix, isChecked) => {
+                if (!isChecked) {
+                    return `${prefix}Hewan/Ikan/Tumbuhan*)`;
+                }
                 const h = bidang === 'KH' ? 'Hewan' : '<del>Hewan</del>';
                 const i = bidang === 'KI' ? 'Ikan' : '<del>Ikan</del>';
                 const t = bidang === 'KT' ? 'Tumbuhan' : '<del>Tumbuhan</del>';
                 return `${prefix}${h}/${i}/${t}*)`;
             };
-            document.getElementById('lblUtama').innerHTML = formatBidangCoret('');
-            document.getElementById('lblProduk').innerHTML = formatBidangCoret('Produk ');
-            document.getElementById('lblLain').innerHTML = formatBidangCoret('Media Pembawa Lain ');
+            document.getElementById('lblUtama').innerHTML = formatBidangCoret('', kat === 'Utama');
+            document.getElementById('lblProduk').innerHTML = formatBidangCoret('Produk ', kat === 'Produk');
+            document.getElementById('lblLain').innerHTML = formatBidangCoret('Media Pembawa Lain ', kat === 'Lain');
 
             // Tabel Komoditas
-            document.getElementById('outTblMediaPembawa').textContent = data.mediaPembawa || '-';
-            document.getElementById('outTblJumlah').textContent = data.volume || '-';
-            document.getElementById('outTblSatuan').textContent = data.satuanVolume || '-';
-            document.getElementById('outTblKeterangan').textContent = data.baKeteranganMp || 'Dimasukkan ke Quarantine Bin';
+            document.getElementById('outTblMediaPembawa').textContent = data.mediaPembawa || '';
+            document.getElementById('outTblJumlah').textContent = data.volume || '';
+            document.getElementById('outTblSatuan').textContent = data.satuanVolume || '';
+            document.getElementById('outTblKeterangan').textContent = data.baKeteranganMp || '';
 
             // Rincian Keterangan
-            document.getElementById('outRincianPengeluaran').textContent = data.pelabuhanMuat || '-';
-            document.getElementById('outRincianPemasukan').textContent = data.pelabuhanBongkar || '-';
-            document.getElementById('outRincianAlatAngkut').textContent = data.alatAngkut || '-';
+            document.getElementById('outRincianPengeluaran').textContent = data.pelabuhanMuat || '';
+            document.getElementById('outRincianPemasukan').textContent = data.pelabuhanBongkar || '';
+            document.getElementById('outRincianAlatAngkut').textContent = data.alatAngkut || '';
             document.getElementById('outRincianTanggalTiba').textContent = tanggalLengkap;
 
             // Tanda Tangan
-            document.getElementById('outSignP1').textContent = data.nama ? `( ${data.nama} )` : '( ........................................ )';
-            document.getElementById('outSignTempat').textContent = data.baTempatKeluar || 'Tarakan';
+            document.getElementById('outSignP1').textContent = data.nama || '';
+            document.getElementById('outSignTempat').textContent = data.baTempatKeluar || '';
             document.getElementById('outSignTanggal').textContent = tanggalLengkap;
-            document.getElementById('outSignP2').textContent = data.baPejabatNama ? `( ${data.baPejabatNama} )` : '( ........................................ )';
-            document.getElementById('outSignNip').textContent = data.baPejabatNip || '........................................';
+            document.getElementById('outSignP2').textContent = data.baPejabatNama || '';
+            document.getElementById('outSignNip').textContent = data.baPejabatNip || '';
+
+            const sigImgP1 = document.getElementById('outSigImgP1');
+            if (data.ttdPihakPertama) {
+                sigImgP1.src = data.ttdPihakPertama;
+                sigImgP1.style.display = 'inline-block';
+                sigImgP1.style.visibility = 'visible';
+            } else {
+                sigImgP1.removeAttribute('src');
+                sigImgP1.style.display = 'none';
+            }
+
+            const sigImgP2 = document.getElementById('outSigImgP2');
+            if (data.ttdPihakKedua) {
+                sigImgP2.src = data.ttdPihakKedua;
+                sigImgP2.style.display = 'inline-block';
+                sigImgP2.style.visibility = 'visible';
+            } else {
+                sigImgP2.removeAttribute('src');
+                sigImgP2.style.display = 'none';
+            }
 
             document.getElementById('baPrintModal').classList.remove('hidden');
         }
@@ -889,11 +1086,12 @@
         }
 
         /**
-         * Pratinjau langsung BA dari isian form saat ini
+         * Pratinjau langsung BA dari isian form saat ini, termasuk tanda tangan aktif pada kanvas.
          */
         function previewDraftBA() {
             const data = {
                 nama: document.getElementById('nama').value.trim(),
+                jenisIdentitas: document.getElementById('jenisIdentitas').value,
                 identitas: document.getElementById('identitas').value.trim(),
                 alamatPelanggar: document.getElementById('alamatPelanggar').value.trim(),
                 tanggal: document.getElementById('tanggal').value,
@@ -918,7 +1116,9 @@
                 baPejabatNip: document.getElementById('baPejabatNip').value.trim(),
                 baPejabatJabatan: document.getElementById('baPejabatJabatan').value.trim(),
                 baTempatKeluar: document.getElementById('baTempatKeluar').value.trim(),
-                baKeteranganMp: document.getElementById('baKeteranganMp').value.trim()
+                baKeteranganMp: document.getElementById('baKeteranganMp').value.trim(),
+                ttdPihakPertama: getSignatureDataUrl('p1'),
+                ttdPihakKedua: getSignatureDataUrl('p2')
             };
             openBeritaAcaraModal(data);
         }
@@ -1069,11 +1269,21 @@
             const fotoIdBase64 = await compressAndGetBase64(fotoIdFile);
             const fotoKomoditasBase64 = await compressAndGetBase64(fotoKomoditasFile);
 
+            const namaPelanggar = document.getElementById('nama').value.trim();
+            const safeNama = (namaPelanggar || 'Pelanggar').replace(/[^a-zA-Z0-9_-]/g, '_');
+            const tglVal = document.getElementById('tanggal').value || new Date().toISOString().slice(0, 10);
+
+            const ttdP1 = getSignatureDataUrl('p1');
+            const ttdP2 = getSignatureDataUrl('p2');
+            const noDokVal = document.getElementById('docNumber').value.trim();
+
             return {
-                nama: document.getElementById('nama').value.trim(),
+                noDokumen: noDokVal.startsWith('[') ? '' : noDokVal,
+                nama: namaPelanggar,
+                jenisIdentitas: document.getElementById('jenisIdentitas').value,
                 identitas: document.getElementById('identitas').value.trim(),
                 alamatPelanggar: document.getElementById('alamatPelanggar').value.trim(),
-                tanggal: document.getElementById('tanggal').value,
+                tanggal: tglVal,
                 satuanPelayanan: document.getElementById('satpel').value,
                 bidang: document.getElementById('bidang').value,
                 pelabuhanMuat: document.getElementById('pelabuhanMuat').value === 'lainnya'
@@ -1089,7 +1299,7 @@
                 volume: document.getElementById('volume').value,
                 satuanVolume: document.getElementById('satuanVolume').value,
                 tindakan: document.getElementById('tindakan').value,
-                // Metadata Berita Acara Quarantine Bin
+                // Metadata Berita Acara Quarantine Bin & Tanda Tangan
                 baNomor: document.getElementById('baNomor').value.trim(),
                 baPukul: document.getElementById('baPukul').value,
                 baKategoriMp: document.getElementById('baKategoriMp').value,
@@ -1098,8 +1308,16 @@
                 baPejabatJabatan: document.getElementById('baPejabatJabatan').value.trim(),
                 baTempatKeluar: document.getElementById('baTempatKeluar').value.trim(),
                 baKeteranganMp: document.getElementById('baKeteranganMp').value.trim(),
+                ttdPihakPertama: ttdP1,
+                ttdPihakKedua: ttdP2,
+                ttdPihakPertamaBase64: ttdP1,
+                ttdPihakPertamaName: ttdP1 ? `TTD_Pihak_Pertama_${safeNama}_${tglVal}.png` : null,
+                ttdPihakKeduaBase64: ttdP2,
+                ttdPihakKeduaName: ttdP2 ? `TTD_Pihak_Kedua_${safeNama}_${tglVal}.png` : null,
                 fotoIdBase64: fotoIdBase64,
+                fotoIdName: fotoIdBase64 ? `Foto_ID_${safeNama}_${tglVal}.jpg` : null,
                 fotoKomoditasBase64: fotoKomoditasBase64,
+                fotoKomoditasName: fotoKomoditasBase64 ? `Foto_Komoditas_${safeNama}_${tglVal}.jpg` : null,
                 createdAt: new Date().toISOString(),
                 syncStatus: 'pending'
             };
@@ -1108,6 +1326,8 @@
         function resetFormUI() {
             document.getElementById('reportForm').reset();
             setDefaultDateTime();
+            clearSignaturePad('p1');
+            clearSignaturePad('p2');
             document.getElementById('quarantineBinFields').classList.add('hidden');
             document.getElementById('previewId').classList.add('hidden');
             document.getElementById('previewId').src = '';
@@ -1120,13 +1340,16 @@
             });
         }
 
+        /**
+         * Mengirim payload laporan ke Google Apps Script Web App.
+         */
         async function sendPayloadToGoogleScript(payload) {
             if (!navigator.onLine) {
                 throw new Error('Perangkat sedang offline.');
             }
             const { localId, createdAt, syncStatus, ...cleanPayload } = payload;
 
-            await fetch(SCRIPT_URL, {
+            const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: {
@@ -1134,6 +1357,11 @@
                 },
                 body: JSON.stringify(cleanPayload)
             });
+
+            if (response && response.type === 'opaque') {
+                return { status: 'sent' };
+            }
+            return response;
         }
 
         document.getElementById('saveDraftBtn').addEventListener('click', async function() {
@@ -1272,6 +1500,7 @@
 
                     const hasFotoId = rec.fotoIdBase64 ? '<i class="fas fa-id-card text-teal-700" title="Ada Foto ID"></i>' : '';
                     const hasFotoKom = rec.fotoKomoditasBase64 ? '<i class="fas fa-camera text-teal-700" title="Ada Foto Komoditas"></i>' : '';
+                    const hasSig = (rec.ttdPihakPertama || rec.ttdPihakKedua) ? '<i class="fas fa-signature text-amber-700" title="Ada Tanda Tangan"></i>' : '';
 
                     return `
                         <div class="border border-gray-200 rounded-xl p-3.5 hover:border-barantin-gold transition bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1280,7 +1509,7 @@
                                     <span class="font-bold text-barantin-teal text-sm">${escapeHtml(rec.nama)}</span>
                                     <span class="text-xs text-gray-500">(${escapeHtml(rec.identitas)})</span>
                                     ${badgeHtml}
-                                    <span class="text-xs space-x-1">${hasFotoId} ${hasFotoKom}</span>
+                                    <span class="text-xs space-x-1">${hasFotoId} ${hasFotoKom} ${hasSig}</span>
                                 </div>
                                 <p class="text-xs text-gray-600">
                                     <span class="font-semibold">${escapeHtml(rec.mediaPembawa)}</span> (${escapeHtml(rec.volume)} ${escapeHtml(rec.satuanVolume)}) &bull;
@@ -1415,15 +1644,33 @@
                             : `<div class="p-6 text-center text-xs text-gray-400 border border-dashed rounded-lg">Tidak ada foto komoditas</div>`}
                     </div>
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-600 mb-1">Tanda Tangan Pihak Pertama</p>
+                        ${rec.ttdPihakPertama
+                            ? `<img src="${rec.ttdPihakPertama}" class="w-full max-h-28 object-contain rounded-lg border bg-white p-1">`
+                            : `<div class="p-4 text-center text-xs text-gray-400 border border-dashed rounded-lg">Belum ada tanda tangan</div>`}
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-600 mb-1">Tanda Tangan Pihak Kedua</p>
+                        ${rec.ttdPihakKedua
+                            ? `<img src="${rec.ttdPihakKedua}" class="w-full max-h-28 object-contain rounded-lg border bg-white p-1">`
+                            : `<div class="p-4 text-center text-xs text-gray-400 border border-dashed rounded-lg">Belum ada tanda tangan</div>`}
+                    </div>
+                </div>
             `;
 
             const footer = document.getElementById('detailModalFooter');
             footer.innerHTML = `
-                <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden'); openBeritaAcaraModal(${JSON.stringify(rec).replace(/"/g, '&quot;')});" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 flex items-center">
+                <button type="button" id="detailPrintBaBtn" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 flex items-center">
                     <i class="fas fa-print mr-1.5"></i> Cetak Berita Acara
                 </button>
                 <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800">Tutup</button>
             `;
+            document.getElementById('detailPrintBaBtn').onclick = () => {
+                document.getElementById('detailModal').classList.add('hidden');
+                openBeritaAcaraModal(rec);
+            };
 
             document.getElementById('detailModal').classList.remove('hidden');
         }
@@ -1476,6 +1723,9 @@
         window.addEventListener('DOMContentLoaded', async () => {
             setDefaultDateTime();
             updateNetworkStatus();
+            setupSignaturePad('p1', 'sigCanvasP1');
+            setupSignaturePad('p2', 'sigCanvasP2');
+            resizeSignaturePads();
             try {
                 await initIndexedDB();
                 await renderLocalRecords();
