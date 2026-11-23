@@ -6,10 +6,14 @@
     <title>Si-Pijar | Sistem Profiling Pengguna Jasa Karantina</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
                     colors: {
                         barantin: {
                             teal: '#1A3636',   /* Dark Slate/Teal dari logo */
@@ -28,23 +32,88 @@
             border-left: 4px solid #D4AF37;
             background-color: white;
             padding: 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
             margin-bottom: 1.5rem;
+        }
+
+        /* Gaya Khusus Dokumen Resmi Berita Acara (Times New Roman / Arial Formal) */
+        .ba-paper {
+            font-family: 'Times New Roman', Times, serif;
+            color: #000000;
+            background: #ffffff;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 14mm 18mm;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+            position: relative;
+        }
+        .ba-kop-title {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .ba-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .ba-table th, .ba-table td {
+            border: 1px solid #000000;
+            padding: 5px 8px;
+            vertical-align: top;
+        }
+        .ba-no-border td {
+            border: none;
+            padding: 2px 4px;
+            vertical-align: top;
+        }
+
+        /* Aturan Cetak (Print / Save as PDF) */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #baPrintModal, #baPrintModal * {
+                visibility: visible;
+            }
+            #baPrintModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                overflow: visible !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .ba-paper {
+                box-shadow: none !important;
+                width: 100% !important;
+                min-height: auto !important;
+                padding: 10mm 14mm !important;
+                margin: 0 !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased font-sans">
+<body class="text-gray-800 antialiased font-sans pb-12">
 
     <!-- Header -->
-    <header class="bg-barantin-teal text-white shadow-lg border-b-4 border-barantin-gold sticky top-0 z-50">
+    <header class="bg-barantin-teal text-white shadow-lg border-b-4 border-barantin-gold sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <!-- Pastikan gambar logo ada di repositori GitHub yang sama dengan nama ini -->
-                <img src="Logo_Badan_Karantina_Indonesia.png" alt="Logo Barantin" class="h-16 w-16 rounded-full border-2 border-barantin-gold object-cover bg-white">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <img src="Logo_Badan_Karantina_Indonesia.png" onerror="this.src='https://placehold.co/100x100/1A3636/D4AF37?text=BARANTIN'" alt="Logo Barantin" class="h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 border-barantin-gold object-cover bg-white shrink-0">
                 <div>
-                    <h1 class="text-2xl font-bold text-barantin-gold tracking-wide">Si-Pijar</h1>
-                    <p class="text-sm font-light text-gray-200">Sistem Profiling Pengguna Jasa Karantina</p>
+                    <h1 class="text-xl sm:text-2xl font-bold text-barantin-gold tracking-wide">Si-Pijar</h1>
+                    <p class="text-xs sm:text-sm font-light text-gray-200">Sistem Profiling Pengguna Jasa Karantina</p>
                 </div>
             </div>
             <div class="hidden md:block text-right">
@@ -54,48 +123,73 @@
         </div>
     </header>
 
+    <!-- Status Koneksi & Database Banner -->
+    <div class="max-w-4xl mx-auto px-4 pt-6">
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center space-x-2">
+                <span id="dbStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-800">
+                    <i class="fas fa-database mr-1.5"></i> IndexedDB Siap
+                </span>
+                <span id="networkStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-wifi mr-1.5"></i> Online
+                </span>
+            </div>
+            <div class="text-gray-500">
+                Data otomatis tersimpan di perangkat sebelum dikirim ke server
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <main class="max-w-4xl mx-auto px-4 py-6">
         <form id="reportForm" class="space-y-6">
             
             <!-- Dokumen Info -->
-            <div class="bg-barantin-teal text-white p-4 rounded-t-lg border-b-4 border-barantin-gold shadow-md text-center">
+            <div class="bg-barantin-teal text-white p-4 rounded-t-xl border-b-4 border-barantin-gold shadow-md text-center">
                 <label class="block text-xs uppercase tracking-wider text-barantin-gold mb-1">Nomor Dokumen</label>
-                <!-- Input ini tidak perlu diisi manual, akan tampil keterangan -->
-                <input type="text" id="docNumber" readonly value="[Berurutan Otomatis Setelah Dikirim]" class="w-full bg-transparent text-center text-lg font-bold border-none focus:ring-0 text-white placeholder-gray-400 p-0">
+                <input type="text" id="docNumber" readonly value="[Berurutan Otomatis Setelah Dikirim]" class="w-full bg-transparent text-center text-base sm:text-lg font-bold border-none focus:ring-0 text-white placeholder-gray-400 p-0">
             </div>
 
             <!-- Bagian 1: Data Identitas -->
             <div class="form-section mt-0 rounded-t-none">
-                <h2 class="text-xl font-bold text-barantin-teal mb-4 border-b pb-2"><i class="fas fa-user-tag mr-2 text-barantin-gold"></i>Data Pelanggar</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-barantin-teal mb-4 border-b pb-2">
+                    <i class="fas fa-user-tag mr-2 text-barantin-gold"></i>Data Pelanggar / Pihak Pertama
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">1. Nama Lengkap</label>
-                        <input type="text" id="nama" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">1. Nama Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" id="nama" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="Nama sesuai identitas">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">2. Nomor Identitas (KTP/Paspor)</label>
-                        <input type="text" id="identitas" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">2. Nomor Identitas (NIK/NPWP/KTP/Paspor) <span class="text-red-500">*</span></label>
+                        <input type="text" id="identitas" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="NIK / Nomor Paspor">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap (Untuk Berita Acara)</label>
+                        <input type="text" id="alamatPelanggar" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="Masukkan alamat lengkap sesuai identitas...">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">3. Foto ID (KTP/Paspor)</label>
-                        <input type="file" id="fotoId" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800" onchange="previewImage(this, 'previewId')">
-                        <img id="previewId" class="mt-2 hidden max-h-40 rounded border border-gray-300 shadow-sm" alt="Preview ID">
+                        <input type="file" id="fotoId" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800 cursor-pointer" onchange="previewImage(this, 'previewId')">
+                        <p class="text-xs text-gray-400 mt-1"><i class="fas fa-compress-arrows-alt mr-1"></i>Gambar akan dikompresi otomatis agar cepat terkirim & hemat penyimpanan.</p>
+                        <img id="previewId" class="mt-3 hidden max-h-44 rounded-lg border border-gray-300 shadow-sm object-contain" alt="Preview ID">
                     </div>
                 </div>
             </div>
 
             <!-- Bagian 2: Detail Operasional -->
             <div class="form-section">
-                <h2 class="text-xl font-bold text-barantin-teal mb-4 border-b pb-2"><i class="fas fa-map-marked-alt mr-2 text-barantin-gold"></i>Detail Operasional</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 class="text-lg sm:text-xl font-bold text-barantin-teal mb-4 border-b pb-2">
+                    <i class="fas fa-map-marked-alt mr-2 text-barantin-gold"></i>Detail Operasional
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">4. Tanggal Laporan</label>
-                        <input type="date" id="tanggal" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">4. Tanggal Laporan <span class="text-red-500">*</span></label>
+                        <input type="date" id="tanggal" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">5. Satuan Pelayanan</label>
-                        <select id="satpel" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">5. Satuan Pelayanan <span class="text-red-500">*</span></label>
+                        <select id="satpel" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent bg-white">
                             <option value="TRK" selected>Tarakan (TRK)</option>
                             <option value="NNK">Nunukan (NNK)</option>
                             <option value="TJS">Tanjung Selor (TJS)</option>
@@ -103,8 +197,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">6. Bidang Karantina</label>
-                        <select id="bidang" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">6. Bidang Karantina <span class="text-red-500">*</span></label>
+                        <select id="bidang" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent bg-white">
                             <option value="KH">Karantina Hewan (KH)</option>
                             <option value="KI">Karantina Ikan (KI)</option>
                             <option value="KT">Karantina Tumbuhan (KT)</option>
@@ -114,8 +208,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">7. Pelabuhan Muat</label>
-                        <select id="pelabuhanMuat" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'pelabuhanMuatLainnya')">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">7. Pelabuhan Muat (Tempat Pengeluaran) <span class="text-red-500">*</span></label>
+                        <select id="pelabuhanMuat" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent bg-white" onchange="toggleLainnya(this, 'pelabuhanMuatLainnya')">
                             <option value="" disabled selected>Pilih Pelabuhan...</option>
                             <option value="Pelabuhan Malundung">Pelabuhan Malundung</option>
                             <option value="Pelabuhan Tunon Taka">Pelabuhan Tunon Taka</option>
@@ -126,12 +220,12 @@
                             <option value="Pelabuhan Nusantara Pare-pare">Pelabuhan Nusantara Pare-pare</option>
                             <option value="lainnya">Tambah Sendiri (Lainnya)...</option>
                         </select>
-                        <input type="text" id="pelabuhanMuatLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
+                        <input type="text" id="pelabuhanMuatLainnya" class="w-full mt-2 border border-gray-300 rounded-lg p-2.5 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">8. Pelabuhan Bongkar</label>
-                        <select id="pelabuhanBongkar" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'pelabuhanBongkarLainnya')">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">8. Pelabuhan Bongkar (Tempat Pemasukan) <span class="text-red-500">*</span></label>
+                        <select id="pelabuhanBongkar" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent bg-white" onchange="toggleLainnya(this, 'pelabuhanBongkarLainnya')">
                             <option value="" disabled selected>Pilih Pelabuhan...</option>
                             <option value="Pelabuhan Malundung">Pelabuhan Malundung</option>
                             <option value="Pelabuhan Tunon Taka">Pelabuhan Tunon Taka</option>
@@ -142,36 +236,38 @@
                             <option value="Pelabuhan Nusantara Pare-pare">Pelabuhan Nusantara Pare-pare</option>
                             <option value="lainnya">Tambah Sendiri (Lainnya)...</option>
                         </select>
-                        <input type="text" id="pelabuhanBongkarLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
+                        <input type="text" id="pelabuhanBongkarLainnya" class="w-full mt-2 border border-gray-300 rounded-lg p-2.5 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama pelabuhan...">
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">9. Alat Angkut</label>
-                        <select id="alatAngkut" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" onchange="toggleLainnya(this, 'alatAngkutLainnya')">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">9. Alat Angkut <span class="text-red-500">*</span></label>
+                        <select id="alatAngkut" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent bg-white" onchange="toggleLainnya(this, 'alatAngkutLainnya')">
                             <option value="" disabled selected>Pilih Alat Angkut...</option>
                             <option value="MV. Indomaya Tiga">MV. Indomaya Tiga</option>
                             <option value="MV. Kaltara Ekspress">MV. Kaltara Ekspress</option>
                             <option value="MV. Bahagia">MV. Bahagia</option>
                             <option value="lainnya">Tambah Sendiri (Lainnya)...</option>
                         </select>
-                        <input type="text" id="alatAngkutLainnya" class="w-full mt-2 border border-gray-300 rounded-md p-2 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama alat angkut...">
+                        <input type="text" id="alatAngkutLainnya" class="w-full mt-2 border border-gray-300 rounded-lg p-2.5 hidden focus:ring-2 focus:ring-barantin-teal" placeholder="Masukkan nama alat angkut...">
                     </div>
                 </div>
             </div>
 
             <!-- Bagian 3: Komoditas & Tindakan -->
             <div class="form-section">
-                <h2 class="text-xl font-bold text-barantin-teal mb-4 border-b pb-2"><i class="fas fa-box-open mr-2 text-barantin-gold"></i>Detail Komoditas</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-barantin-teal mb-4 border-b pb-2">
+                    <i class="fas fa-box-open mr-2 text-barantin-gold"></i>Detail Komoditas
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">10. Media Pembawa</label>
-                        <input type="text" id="mediaPembawa" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="Contoh: Daging Sapi, Benih Sawit, dll.">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">10. Media Pembawa <span class="text-red-500">*</span></label>
+                        <input type="text" id="mediaPembawa" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent" placeholder="Contoh: Daging Sapi, Benih Sawit, dll.">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">11. Volume</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">11. Volume <span class="text-red-500">*</span></label>
                         <div class="flex">
-                            <input type="number" id="volume" required step="0.01" class="w-2/3 border border-gray-300 rounded-l-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent border-r-0" placeholder="Jumlah...">
-                            <select id="satuanVolume" class="w-1/3 border border-gray-300 rounded-r-md p-2 bg-gray-50 focus:ring-2 focus:ring-barantin-teal">
+                            <input type="number" id="volume" required step="0.01" min="0" class="w-2/3 border border-gray-300 rounded-l-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent border-r-0" placeholder="Jumlah...">
+                            <select id="satuanVolume" class="w-1/3 border border-gray-300 rounded-r-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-barantin-teal">
                                 <option value="Kg">Kg</option>
                                 <option value="Ton">Ton</option>
                                 <option value="Ekor">Ekor</option>
@@ -181,8 +277,8 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">12. Tindakan Karantina</label>
-                        <select id="tindakan" required class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-barantin-teal focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">12. Tindakan Karantina <span class="text-red-500">*</span></label>
+                        <select id="tindakan" required onchange="toggleQuarantineBinSection()" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-barantin-teal focus:border-transparent bg-white">
                             <option value="" disabled selected>Pilih Tindakan...</option>
                             <option value="Penahanan">Penahanan</option>
                             <option value="Penolakan">Penolakan</option>
@@ -190,30 +286,720 @@
                             <option value="Quarantine Bin">Quarantine Bin</option>
                         </select>
                     </div>
+
+                    <!-- Panel Tambahan Otomatis Muncul Jika Memilih "Quarantine Bin" -->
+                    <div id="quarantineBinFields" class="md:col-span-2 hidden bg-amber-50/80 border border-amber-300 rounded-xl p-4 mt-1 space-y-4">
+                        <div class="flex items-center justify-between border-b border-amber-200 pb-2">
+                            <h3 class="text-sm font-bold text-barantin-teal flex items-center">
+                                <i class="fas fa-file-signature mr-2 text-amber-600"></i>Kelengkapan Berita Acara Quarantine Bin (Format 1)
+                            </h3>
+                            <span class="text-[11px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-semibold">Otomatis Cetak BA</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Nomor Berita Acara</label>
+                                <input type="text" id="baNomor" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Contoh: BA.01/K.17.B/11/2026">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Pukul Penyerahan (WITA)</label>
+                                <input type="time" id="baPukul" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Kategori Media Pembawa</label>
+                                <select id="baKategoriMp" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white">
+                                    <option value="Produk">Produk Hewan/Ikan/Tumbuhan</option>
+                                    <option value="Utama">Hewan/Ikan/Tumbuhan</option>
+                                    <option value="Lain">Media Pembawa Lain</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Pejabat Karantina (Pihak II)</label>
+                                <input type="text" id="baPejabatNama" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Nama lengkap & gelar">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">NIP Pejabat Karantina</label>
+                                <input type="text" id="baPejabatNip" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="NIP 18 digit">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Jabatan Pejabat Karantina</label>
+                                <input type="text" id="baPejabatJabatan" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Contoh: Pemeriksa Karantina Terampil">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Tempat Dikeluarkan BA</label>
+                                <input type="text" id="baTempatKeluar" value="Tarakan" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Contoh: Tarakan / Nunukan">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Keterangan Tambahan (Tabel Uraian)</label>
+                                <input type="text" id="baKeteranganMp" value="Dimasukkan ke Quarantine Bin" class="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white" placeholder="Keterangan kondisi media pembawa">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="button" onclick="previewDraftBA()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3.5 py-2 rounded-lg shadow-xs transition flex items-center">
+                                <i class="fas fa-print mr-1.5"></i> Pratinjau & Cetak Berita Acara Sekarang
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="md:col-span-2 mt-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">13. Dokumentasi (Komoditas)</label>
-                        <input type="file" id="fotoKomoditas" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800" onchange="previewImage(this, 'previewKomoditas')">
-                        <img id="previewKomoditas" class="mt-2 hidden max-h-40 rounded border border-gray-300 shadow-sm" alt="Preview Komoditas">
+                        <input type="file" id="fotoKomoditas" accept="image/*" capture="environment" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-barantin-teal file:text-white hover:file:bg-teal-800 cursor-pointer" onchange="previewImage(this, 'previewKomoditas')">
+                        <img id="previewKomoditas" class="mt-3 hidden max-h-44 rounded-lg border border-gray-300 shadow-sm object-contain" alt="Preview Komoditas">
                     </div>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" class="w-full bg-barantin-teal text-barantin-gold font-bold text-lg py-4 rounded-lg shadow-lg hover:bg-teal-900 transition duration-300 border-2 border-barantin-gold flex justify-center items-center">
-                <i class="fas fa-paper-plane mr-2"></i> Kirim Laporan Pelanggaran
-            </button>
-            <p class="text-center text-xs text-gray-500 mt-2"><i class="fas fa-lock mr-1"></i> Data dienkripsi dan disimpan dengan aman di sistem.</p>
+            <!-- Submit Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button type="button" id="saveDraftBtn" class="sm:col-span-1 bg-white text-barantin-teal font-semibold text-base py-3.5 px-4 rounded-xl shadow border-2 border-barantin-teal hover:bg-teal-50 transition duration-200 flex justify-center items-center">
+                    <i class="fas fa-save mr-2"></i> Simpan Lokal Saja
+                </button>
+                <button type="submit" id="submitBtn" class="sm:col-span-2 bg-barantin-teal text-barantin-gold font-bold text-base sm:text-lg py-3.5 px-6 rounded-xl shadow-lg hover:bg-teal-900 transition duration-200 border-2 border-barantin-gold flex justify-center items-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Simpan & Kirim Laporan
+                </button>
+            </div>
+            <p class="text-center text-xs text-gray-500 mt-2">
+                <i class="fas fa-shield-alt mr-1 text-barantin-teal"></i> Data selalu dicadangkan ke <strong>IndexedDB</strong> browser Anda secara otomatis.
+            </p>
         </form>
+
+        <!-- Bagian 4: Riwayat Penyimpanan Lokal (IndexedDB) -->
+        <section class="mt-12 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <div class="bg-barantin-teal px-5 py-4 border-b-2 border-barantin-gold flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-bold text-barantin-gold flex items-center">
+                        <i class="fas fa-hdd mr-2"></i> Penyimpanan Lokal (IndexedDB)
+                    </h2>
+                    <p class="text-xs text-gray-300">Arsip laporan tersimpan di perangkat ini (<span id="totalLocalCount">0</span> data)</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="syncAllPending()" class="bg-barantin-gold text-barantin-teal hover:bg-yellow-400 text-xs font-bold px-3 py-2 rounded-lg shadow transition flex items-center">
+                        <i class="fas fa-sync-alt mr-1.5"></i> Kirim Ulang Tertunda
+                    </button>
+                    <button type="button" onclick="exportToCSV()" class="bg-white/10 text-white hover:bg-white/20 border border-white/30 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center">
+                        <i class="fas fa-file-csv mr-1.5"></i> Unduh CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-5">
+                <div id="localRecordsContainer" class="space-y-3">
+                    <div class="text-center py-8 text-gray-400 text-sm">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Memuat data dari IndexedDB...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <!-- Custom Modal Notifikasi -->
+    <div id="customModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border-t-4 border-barantin-gold overflow-hidden transform transition-all">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div id="modalIconContainer" class="h-10 w-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                        <i id="modalIcon" class="fas fa-check text-lg"></i>
+                    </div>
+                    <h3 id="modalTitle" class="text-lg font-bold text-gray-900">Informasi</h3>
+                </div>
+                <p id="modalMessage" class="text-sm text-gray-600 whitespace-pre-line leading-relaxed"></p>
+            </div>
+            <div id="modalFooter" class="bg-gray-50 px-6 py-3 flex flex-wrap justify-end gap-2 border-t border-gray-100">
+                <button type="button" id="modalCloseBtn" onclick="closeModal()" class="bg-barantin-teal text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-teal-900 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Foto & Data -->
+    <div id="detailModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="bg-barantin-teal text-white px-5 py-3.5 flex justify-between items-center border-b-2 border-barantin-gold">
+                <h3 class="font-bold text-barantin-gold"><i class="fas fa-file-alt mr-2"></i>Detail Laporan Lokal</h3>
+                <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="text-gray-300 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div id="detailModalContent" class="p-5 overflow-y-auto space-y-4 text-sm"></div>
+            <div id="detailModalFooter" class="bg-gray-50 px-5 py-3 border-t flex justify-end gap-2">
+                <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BERITA ACARA SERAH TERIMA QUARANTINE BIN (FORMAT 1) -->
+    <div id="baPrintModal" class="fixed inset-0 bg-black/80 z-50 hidden overflow-y-auto p-2 sm:p-6">
+        <!-- Toolbar Atas (Tidak ikut tercetak) -->
+        <div class="no-print max-w-[210mm] mx-auto mb-4 bg-barantin-teal text-white px-4 py-3 rounded-xl shadow-lg border border-barantin-gold flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-file-pdf text-barantin-gold text-xl"></i>
+                <div>
+                    <p class="text-sm font-bold text-barantin-gold">Pratinjau Berita Acara (Format 1)</p>
+                    <p class="text-[11px] text-gray-300">Gunakan tombol Cetak / Simpan PDF di sebelah kanan</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="window.print()" class="bg-barantin-gold hover:bg-yellow-400 text-barantin-teal font-bold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition flex items-center">
+                    <i class="fas fa-print mr-2"></i> Cetak / Simpan PDF
+                </button>
+                <button type="button" onclick="closeBAModal()" class="bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm px-3.5 py-2 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+
+        <!-- Lembar Dokumen Resmi A4 -->
+        <div id="baPaperContent" class="ba-paper">
+            <!-- Baris Format 1 Pojok Kanan Atas -->
+            <div style="text-align: right; font-size: 10pt; font-weight: bold; margin-bottom: 4px;">
+                Format 1
+            </div>
+
+            <!-- KOP SURAT RESMI BARANTIN -->
+            <table style="width: 100%; border-collapse: collapse; border-bottom: 3px double #000000; padding-bottom: 6px; margin-bottom: 12px;">
+                <tr>
+                    <td style="width: 82px; vertical-align: middle; text-align: center; padding-bottom: 6px;">
+                        <img src="Logo_Badan_Karantina_Indonesia.png" onerror="this.src='https://placehold.co/90x90/1A3636/D4AF37?text=BARANTIN'" alt="Logo Barantin" style="width: 74px; height: 74px; object-fit: contain;">
+                    </td>
+                    <td class="ba-kop-title" style="text-align: center; vertical-align: middle; padding-bottom: 6px;">
+                        <div style="font-size: 12pt; font-weight: bold; letter-spacing: 0.3px; line-height: 1.2;">
+                            BADAN KARANTINA INDONESIA
+                        </div>
+                        <div style="font-size: 13pt; font-weight: bold; letter-spacing: 0.3px; line-height: 1.25;">
+                            BALAI KARANTINA HEWAN, IKAN DAN TUMBUHAN<br>KALIMANTAN UTARA
+                        </div>
+                        <div style="font-size: 8.5pt; line-height: 1.3; margin-top: 3px;">
+                            Jl. Yos Sudarso No.11 RT.04, Kel. Lingkas Ujung, Kec. Tarakan Timur, Kota Tarakan - Kalimantan Utara 77126<br>
+                            TELEPON (0551) 21526, 08115442414 FAKSIMILE (0551) 36508<br>
+                            WEBSITE karantinaindonesia.go.id/kalimantanutara<br>
+                            EMAIL karantinakaltara@karantinaindonesia.go.id
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- JUDUL BERITA ACARA -->
+            <div style="text-align: center; margin-top: 10px; margin-bottom: 14px;">
+                <div style="font-size: 11.5pt; font-weight: bold; text-decoration: underline; line-height: 1.35;">
+                    BERITA ACARA SERAH TERIMA MEDIA PEMBAWA<br>
+                    UNTUK PEMUSNAHAN PADA TEMPAT SAMPAH KARANTINA
+                </div>
+                <div style="font-size: 11pt; margin-top: 4px;">
+                    Nomor: <span id="outBaNomor">........................................................</span>
+                </div>
+            </div>
+
+            <!-- PARAGRAF PEMBUKA -->
+            <p style="font-size: 11pt; line-height: 1.5; text-align: justify; margin-bottom: 12px;">
+                Pada hari ini <strong id="outBaHari">............</strong>, tanggal <strong id="outBaTanggalTeks">....................</strong> bulan <strong id="outBaBulan">............</strong> tahun <strong id="outBaTahun">........</strong> pukul <strong id="outBaPukul">........</strong> WITA, telah diserahkan Media Pembawa, dengan keterangan sebagai berikut :
+            </p>
+
+            <!-- BLOK PIHAK PERTAMA & PIHAK KEDUA (2 KOLOM SEJAJAR SEPERTI PDF) -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-bottom: 12px;">
+                <tr>
+                    <!-- Kolom Pihak Pertama -->
+                    <td style="width: 50%; vertical-align: top; padding-right: 10px;">
+                        <div style="font-weight: bold; margin-bottom: 4px;">Pihak Pertama</div>
+                        <table class="ba-no-border" style="width: 100%; font-size: 10.5pt;">
+                            <tr>
+                                <td style="width: 125px;">Nama</td>
+                                <td style="width: 10px;">:</td>
+                                <td id="outP1Nama" style="font-weight: bold;">-</td>
+                            </tr>
+                            <tr>
+                                <td>Alamat</td>
+                                <td>:</td>
+                                <td id="outP1Alamat">-</td>
+                            </tr>
+                            <tr>
+                                <td>NIK/NPWP/KTP/Paspor</td>
+                                <td>:</td>
+                                <td id="outP1Identitas">-</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <!-- Kolom Pihak Kedua -->
+                    <td style="width: 50%; vertical-align: top; padding-left: 10px;">
+                        <div style="font-weight: bold; margin-bottom: 4px;">Pihak Kedua (Pejabat Karantina)</div>
+                        <table class="ba-no-border" style="width: 100%; font-size: 10.5pt;">
+                            <tr>
+                                <td style="width: 65px;">Nama</td>
+                                <td style="width: 10px;">:</td>
+                                <td id="outP2Nama" style="font-weight: bold;">-</td>
+                            </tr>
+                            <tr>
+                                <td>NIP</td>
+                                <td>:</td>
+                                <td id="outP2Nip">-</td>
+                            </tr>
+                            <tr>
+                                <td>Jabatan</td>
+                                <td>:</td>
+                                <td id="outP2Jabatan">-</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- PENGANTAR TABEL -->
+            <p style="font-size: 11pt; margin-bottom: 8px;">
+                Pihak Pertama Menyerahkan Media Pembawa kepada Pihak Kedua berupa :
+            </p>
+
+            <!-- BAGIAN I: URAIAN MEDIA PEMBAWA -->
+            <div style="font-size: 11pt; font-weight: bold; margin-bottom: 6px;">
+                I. &nbsp;&nbsp;Uraian Media Pembawa**)
+            </div>
+
+            <!-- CHECKBOX KATEGORI MEDIA PEMBAWA -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-bottom: 8px;">
+                <tr>
+                    <td style="width: 34%; vertical-align: top;">
+                        <span id="chkUtama" style="font-size: 12pt;">&#9744;</span> <span id="lblUtama">Hewan/Ikan/Tumbuhan*)</span>
+                    </td>
+                    <td style="width: 36%; vertical-align: top;">
+                        <span id="chkProduk" style="font-size: 12pt;">&#9744;</span> <span id="lblProduk">Produk Hewan/Ikan/Tumbuhan*)</span>
+                    </td>
+                    <td style="width: 30%; vertical-align: top;">
+                        <span id="chkLain" style="font-size: 12pt;">&#9744;</span> <span id="lblLain">Media Pembawa Lain Hewan/Ikan/Tumbuhan*)</span>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- TABEL KOMODITAS -->
+            <table class="ba-table" style="font-size: 10.5pt; margin-bottom: 14px;">
+                <thead>
+                    <tr style="background-color: #f3f4f6; text-align: center;">
+                        <th style="width: 38px;">No</th>
+                        <th>Media Pembawa</th>
+                        <th style="width: 80px;">Jumlah</th>
+                        <th style="width: 80px;">Satuan</th>
+                        <th style="width: 175px;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align: center;">1.</td>
+                        <td id="outTblMediaPembawa">-</td>
+                        <td id="outTblJumlah" style="text-align: center;">-</td>
+                        <td id="outTblSatuan" style="text-align: center;">-</td>
+                        <td id="outTblKeterangan">-</td>
+                    </tr>
+                    <tr>
+                        <td style="height: 22px;"></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- BAGIAN II: RINCIAN KETERANGAN -->
+            <div style="font-size: 11pt; font-weight: bold; margin-bottom: 6px;">
+                II. &nbsp;Rincian Keterangan
+            </div>
+            <table class="ba-no-border" style="width: 100%; font-size: 10.5pt; margin-left: 14px; margin-bottom: 14px;">
+                <tr>
+                    <td style="width: 210px;">Tempat Pengeluaran</td>
+                    <td style="width: 12px;">:</td>
+                    <td id="outRincianPengeluaran">-</td>
+                </tr>
+                <tr>
+                    <td>Tempat Pemasukan</td>
+                    <td>:</td>
+                    <td id="outRincianPemasukan">-</td>
+                </tr>
+                <tr>
+                    <td>Jenis dan Identitas Alat Angkut</td>
+                    <td>:</td>
+                    <td id="outRincianAlatAngkut">-</td>
+                </tr>
+                <tr>
+                    <td>Tanggal Tiba/Berangkat</td>
+                    <td>:</td>
+                    <td id="outRincianTanggalTiba">-</td>
+                </tr>
+            </table>
+
+            <!-- KALIMAT PENUTUP -->
+            <p style="font-size: 11pt; line-height: 1.5; text-align: justify; margin-bottom: 18px;">
+                Untuk selanjutnya dilakukan pemusnahan melalui tempat sampah karantina (<em>quarantine bin</em>) sesuai peraturan perundangan dibidang karantina yang berlaku.
+            </p>
+
+            <!-- BLOK TANDA TANGAN -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 10.5pt; margin-top: 8px;">
+                <tr>
+                    <td style="width: 50%; text-align: center; vertical-align: top;">
+                        <div style="height: 36px;"></div>
+                        <div>Pihak Pertama</div>
+                        <div style="height: 62px;"></div>
+                        <div id="outSignP1" style="font-weight: bold; text-decoration: underline;">( ........................................ )</div>
+                    </td>
+                    <td style="width: 50%; text-align: center; vertical-align: top;">
+                        <div>Dikeluarkan di <span id="outSignTempat">Tarakan</span></div>
+                        <div>Tanggal, <span id="outSignTanggal">....................</span></div>
+                        <div style="margin-top: 2px;">Pihak Kedua</div>
+                        <div style="height: 62px;"></div>
+                        <div id="outSignP2" style="font-weight: bold; text-decoration: underline;">( ........................................ )</div>
+                        <div>NIP. <span id="outSignNip">........................................</span></div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- CATATAN KAKI -->
+            <div style="font-size: 9.5pt; margin-top: 18px;">
+                *) Coret yang tidak perlu
+            </div>
+
+            <!-- FOOTER BSrE BSSN SEPERTI CONTOH PDF -->
+            <div style="margin-top: 24px; padding-top: 8px; border-top: 1px solid #cbd5e1; text-align: center; font-size: 8.5pt; color: #334155; font-family: Arial, Helvetica, sans-serif;">
+                Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik<br>
+                yang diterbitkan oleh Balai Besar Sertifikasi Elektronik (BSrE), Badan Siber dan Sandi Negara (BSSN).
+            </div>
+        </div>
+    </div>
 
     <script>
         // === KONFIGURASI URL GOOGLE APPS SCRIPT ===
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4O3ONQR5VZicavOcITFm2eOciHavb1x_yasydiG6DSel3b47YoYKu9xelgKd2psVF/exec';
 
-        // Set tanggal hari ini sebagai default
-        document.getElementById('tanggal').valueAsDate = new Date();
+        // === KONFIGURASI INDEXEDDB ===
+        const DB_NAME = 'SiPijarBarantinDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'laporan_pelanggaran';
+        let dbInstance = null;
 
-        // Logika "Lainnya" pada dropdown
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                if (!window.indexedDB) {
+                    updateDbBadge(false, 'Browser tidak mendukung IndexedDB');
+                    reject(new Error('IndexedDB tidak didukung browser ini.'));
+                    return;
+                }
+
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'localId', autoIncrement: true });
+                        objectStore.createIndex('tanggal', 'tanggal', { unique: false });
+                        objectStore.createIndex('syncStatus', 'syncStatus', { unique: false });
+                        objectStore.createIndex('nama', 'nama', { unique: false });
+                    }
+                };
+
+                request.onsuccess = function(event) {
+                    dbInstance = event.target.result;
+                    updateDbBadge(true, 'IndexedDB Aktif');
+                    resolve(dbInstance);
+                };
+
+                request.onerror = function(event) {
+                    console.error('IndexedDB Error:', event.target.error);
+                    updateDbBadge(false, 'Gagal memuat IndexedDB');
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        function updateDbBadge(isOk, text) {
+            const badge = document.getElementById('dbStatusBadge');
+            if (isOk) {
+                badge.className = 'inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-800';
+                badge.innerHTML = `<i class="fas fa-database mr-1.5"></i> ${text}`;
+            } else {
+                badge.className = 'inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-red-100 text-red-800';
+                badge.innerHTML = `<i class="fas fa-exclamation-triangle mr-1.5"></i> ${text}`;
+            }
+        }
+
+        async function saveToIndexedDB(record) {
+            if (!dbInstance) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = dbInstance.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = record.localId ? store.put(record) : store.add(record);
+
+                request.onsuccess = (event) => resolve(event.target.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        async function getAllFromIndexedDB() {
+            if (!dbInstance) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = dbInstance.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    const results = request.result || [];
+                    results.sort((a, b) => b.localId - a.localId);
+                    resolve(results);
+                };
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        async function getRecordById(localId) {
+            if (!dbInstance) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = dbInstance.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(localId);
+
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        async function deleteFromIndexedDB(localId) {
+            if (!dbInstance) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = dbInstance.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(localId);
+
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        // === LOGIKA FORM & BERITA ACARA QUARANTINE BIN ===
+
+        function setDefaultDateTime() {
+            const now = new Date();
+            document.getElementById('tanggal').valueAsDate = now;
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('baPukul').value = `${hh}:${mm}`;
+        }
+
+        function toggleQuarantineBinSection() {
+            const tindakan = document.getElementById('tindakan').value;
+            const qbSection = document.getElementById('quarantineBinFields');
+            if (tindakan === 'Quarantine Bin') {
+                qbSection.classList.remove('hidden');
+            } else {
+                qbSection.classList.add('hidden');
+            }
+        }
+
+        // Sinkronisasi otomatis tempat pengeluaran BA sesuai pilihan Satpel
+        document.getElementById('satpel').addEventListener('change', function() {
+            const mapSatpel = {
+                'TRK': 'Tarakan',
+                'NNK': 'Nunukan',
+                'TJS': 'Tanjung Selor',
+                'SBT': 'Sebatik'
+            };
+            document.getElementById('baTempatKeluar').value = mapSatpel[this.value] || 'Tarakan';
+        });
+
+        /**
+         * Mengisi template Berita Acara Format 1 dan membuka modal cetak
+         */
+        function openBeritaAcaraModal(data) {
+            const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const namaBulan = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+
+            let tglObj = data.tanggal ? new Date(data.tanggal + 'T00:00:00') : new Date();
+            if (isNaN(tglObj.getTime())) tglObj = new Date();
+
+            const hariStr = namaHari[tglObj.getDay()];
+            const tanggalAngka = String(tglObj.getDate()).padStart(2, '0');
+            const bulanStr = namaBulan[tglObj.getMonth()];
+            const tahunStr = tglObj.getFullYear();
+            const tanggalLengkap = `${tanggalAngka} ${bulanStr} ${tahunStr}`;
+
+            // Header & Pembuka
+            document.getElementById('outBaNomor').textContent = data.baNomor || `BA.${data.localId || '001'}/K.17.B/${String(tglObj.getMonth() + 1).padStart(2, '0')}/${tahunStr}`;
+            document.getElementById('outBaHari').textContent = hariStr;
+            document.getElementById('outBaTanggalTeks').textContent = tanggalAngka;
+            document.getElementById('outBaBulan').textContent = bulanStr;
+            document.getElementById('outBaTahun').textContent = tahunStr;
+            document.getElementById('outBaPukul').textContent = data.baPukul || '--:--';
+
+            // Pihak Pertama
+            document.getElementById('outP1Nama').textContent = data.nama || '-';
+            document.getElementById('outP1Alamat').textContent = data.alamatPelanggar || '-';
+            document.getElementById('outP1Identitas').textContent = data.identitas || '-';
+
+            // Pihak Kedua (Pejabat Karantina)
+            document.getElementById('outP2Nama').textContent = data.baPejabatNama || '........................................';
+            document.getElementById('outP2Nip').textContent = data.baPejabatNip || '........................................';
+            document.getElementById('outP2Jabatan').textContent = data.baPejabatJabatan || 'Pejabat Karantina';
+
+            // Checkbox Kategori Media Pembawa
+            const kat = data.baKategoriMp || 'Produk';
+            document.getElementById('chkUtama').innerHTML = kat === 'Utama' ? '&#9745;' : '&#9744;';
+            document.getElementById('chkProduk').innerHTML = kat === 'Produk' ? '&#9745;' : '&#9744;';
+            document.getElementById('chkLain').innerHTML = kat === 'Lain' ? '&#9745;' : '&#9744;';
+
+            // Coret otomatis jenis bidang yang tidak sesuai (KH / KI / KT)
+            const bidang = data.bidang || 'KH';
+            const formatBidangCoret = (prefix) => {
+                const h = bidang === 'KH' ? 'Hewan' : '<del>Hewan</del>';
+                const i = bidang === 'KI' ? 'Ikan' : '<del>Ikan</del>';
+                const t = bidang === 'KT' ? 'Tumbuhan' : '<del>Tumbuhan</del>';
+                return `${prefix}${h}/${i}/${t}*)`;
+            };
+            document.getElementById('lblUtama').innerHTML = formatBidangCoret('');
+            document.getElementById('lblProduk').innerHTML = formatBidangCoret('Produk ');
+            document.getElementById('lblLain').innerHTML = formatBidangCoret('Media Pembawa Lain ');
+
+            // Tabel Komoditas
+            document.getElementById('outTblMediaPembawa').textContent = data.mediaPembawa || '-';
+            document.getElementById('outTblJumlah').textContent = data.volume || '-';
+            document.getElementById('outTblSatuan').textContent = data.satuanVolume || '-';
+            document.getElementById('outTblKeterangan').textContent = data.baKeteranganMp || 'Dimasukkan ke Quarantine Bin';
+
+            // Rincian Keterangan
+            document.getElementById('outRincianPengeluaran').textContent = data.pelabuhanMuat || '-';
+            document.getElementById('outRincianPemasukan').textContent = data.pelabuhanBongkar || '-';
+            document.getElementById('outRincianAlatAngkut').textContent = data.alatAngkut || '-';
+            document.getElementById('outRincianTanggalTiba').textContent = tanggalLengkap;
+
+            // Tanda Tangan
+            document.getElementById('outSignP1').textContent = data.nama ? `( ${data.nama} )` : '( ........................................ )';
+            document.getElementById('outSignTempat').textContent = data.baTempatKeluar || 'Tarakan';
+            document.getElementById('outSignTanggal').textContent = tanggalLengkap;
+            document.getElementById('outSignP2').textContent = data.baPejabatNama ? `( ${data.baPejabatNama} )` : '( ........................................ )';
+            document.getElementById('outSignNip').textContent = data.baPejabatNip || '........................................';
+
+            document.getElementById('baPrintModal').classList.remove('hidden');
+        }
+
+        function closeBAModal() {
+            document.getElementById('baPrintModal').classList.add('hidden');
+        }
+
+        /**
+         * Pratinjau langsung BA dari isian form saat ini
+         */
+        function previewDraftBA() {
+            const data = {
+                nama: document.getElementById('nama').value.trim(),
+                identitas: document.getElementById('identitas').value.trim(),
+                alamatPelanggar: document.getElementById('alamatPelanggar').value.trim(),
+                tanggal: document.getElementById('tanggal').value,
+                satuanPelayanan: document.getElementById('satpel').value,
+                bidang: document.getElementById('bidang').value,
+                pelabuhanMuat: document.getElementById('pelabuhanMuat').value === 'lainnya'
+                    ? document.getElementById('pelabuhanMuatLainnya').value.trim()
+                    : document.getElementById('pelabuhanMuat').value,
+                pelabuhanBongkar: document.getElementById('pelabuhanBongkar').value === 'lainnya'
+                    ? document.getElementById('pelabuhanBongkarLainnya').value.trim()
+                    : document.getElementById('pelabuhanBongkar').value,
+                alatAngkut: document.getElementById('alatAngkut').value === 'lainnya'
+                    ? document.getElementById('alatAngkutLainnya').value.trim()
+                    : document.getElementById('alatAngkut').value,
+                mediaPembawa: document.getElementById('mediaPembawa').value.trim(),
+                volume: document.getElementById('volume').value,
+                satuanVolume: document.getElementById('satuanVolume').value,
+                baNomor: document.getElementById('baNomor').value.trim(),
+                baPukul: document.getElementById('baPukul').value,
+                baKategoriMp: document.getElementById('baKategoriMp').value,
+                baPejabatNama: document.getElementById('baPejabatNama').value.trim(),
+                baPejabatNip: document.getElementById('baPejabatNip').value.trim(),
+                baPejabatJabatan: document.getElementById('baPejabatJabatan').value.trim(),
+                baTempatKeluar: document.getElementById('baTempatKeluar').value.trim(),
+                baKeteranganMp: document.getElementById('baKeteranganMp').value.trim()
+            };
+            openBeritaAcaraModal(data);
+        }
+
+        async function openBAFromLocalId(localId) {
+            const rec = await getRecordById(localId);
+            if (rec) {
+                openBeritaAcaraModal(rec);
+            }
+        }
+
+        // === UTILITAS UI & KOMPRESI GAMBAR ===
+
+        function showModal(title, message, type = 'success', confirmCallback = null, extraAction = null) {
+            const modal = document.getElementById('customModal');
+            const iconContainer = document.getElementById('modalIconContainer');
+            const icon = document.getElementById('modalIcon');
+            const titleEl = document.getElementById('modalTitle');
+            const msgEl = document.getElementById('modalMessage');
+            const footerEl = document.getElementById('modalFooter');
+
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            if (type === 'success') {
+                iconContainer.className = 'h-10 w-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0';
+                icon.className = 'fas fa-check text-lg';
+            } else if (type === 'warning') {
+                iconContainer.className = 'h-10 w-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0';
+                icon.className = 'fas fa-exclamation-triangle text-lg';
+            } else {
+                iconContainer.className = 'h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0';
+                icon.className = 'fas fa-times text-lg';
+            }
+
+            if (confirmCallback) {
+                footerEl.innerHTML = `
+                    <button type="button" onclick="closeModal()" class="bg-gray-200 text-gray-800 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-300 transition">Batal</button>
+                    <button type="button" id="modalConfirmAction" class="bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition">Ya, Hapus</button>
+                `;
+                document.getElementById('modalConfirmAction').onclick = () => {
+                    closeModal();
+                    confirmCallback();
+                };
+            } else {
+                let extraBtnHtml = '';
+                if (extraAction) {
+                    extraBtnHtml = `<button type="button" id="modalExtraBtn" class="bg-amber-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-amber-700 transition flex items-center"><i class="fas fa-print mr-1.5"></i> ${extraAction.label}</button>`;
+                }
+                footerEl.innerHTML = `
+                    ${extraBtnHtml}
+                    <button type="button" onclick="closeModal()" class="bg-barantin-teal text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-teal-900 transition">Mengerti</button>
+                `;
+                if (extraAction) {
+                    document.getElementById('modalExtraBtn').onclick = () => {
+                        closeModal();
+                        extraAction.onClick();
+                    };
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function updateNetworkStatus() {
+            const badge = document.getElementById('networkStatusBadge');
+            if (navigator.onLine) {
+                badge.className = 'inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-blue-100 text-blue-800';
+                badge.innerHTML = '<i class="fas fa-wifi mr-1.5"></i> Online';
+            } else {
+                badge.className = 'inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-amber-100 text-amber-800';
+                badge.innerHTML = '<i class="fas fa-plane mr-1.5"></i> Offline (Mode Lokal)';
+            }
+        }
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
         function toggleLainnya(selectElem, inputId) {
             const inputElem = document.getElementById(inputId);
             if (selectElem.value === 'lainnya') {
@@ -226,7 +1012,6 @@
             }
         }
 
-        // Preview Gambar
         function previewImage(input, imgId) {
             const preview = document.getElementById(imgId);
             if (input.files && input.files[0]) {
@@ -234,7 +1019,7 @@
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
-                }
+                };
                 reader.readAsDataURL(input.files[0]);
             } else {
                 preview.src = "";
@@ -242,8 +1027,7 @@
             }
         }
 
-        // Fungsi mengubah file gambar menjadi Base64 string
-        function getBase64(file) {
+        function compressAndGetBase64(file, maxWidth = 1000, quality = 0.72) {
             return new Promise((resolve, reject) => {
                 if (!file) {
                     resolve(null);
@@ -251,88 +1035,452 @@
                 }
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                        resolve(compressedDataUrl);
+                    };
+                    img.onerror = (err) => reject(err);
+                };
+                reader.onerror = (err) => reject(err);
             });
         }
 
-        // Logika Submit Form ke Google Apps Script
+        async function collectFormData() {
+            const fotoIdFile = document.getElementById('fotoId').files[0];
+            const fotoKomoditasFile = document.getElementById('fotoKomoditas').files[0];
+
+            const fotoIdBase64 = await compressAndGetBase64(fotoIdFile);
+            const fotoKomoditasBase64 = await compressAndGetBase64(fotoKomoditasFile);
+
+            return {
+                nama: document.getElementById('nama').value.trim(),
+                identitas: document.getElementById('identitas').value.trim(),
+                alamatPelanggar: document.getElementById('alamatPelanggar').value.trim(),
+                tanggal: document.getElementById('tanggal').value,
+                satuanPelayanan: document.getElementById('satpel').value,
+                bidang: document.getElementById('bidang').value,
+                pelabuhanMuat: document.getElementById('pelabuhanMuat').value === 'lainnya'
+                    ? document.getElementById('pelabuhanMuatLainnya').value.trim()
+                    : document.getElementById('pelabuhanMuat').value,
+                pelabuhanBongkar: document.getElementById('pelabuhanBongkar').value === 'lainnya'
+                    ? document.getElementById('pelabuhanBongkarLainnya').value.trim()
+                    : document.getElementById('pelabuhanBongkar').value,
+                alatAngkut: document.getElementById('alatAngkut').value === 'lainnya'
+                    ? document.getElementById('alatAngkutLainnya').value.trim()
+                    : document.getElementById('alatAngkut').value,
+                mediaPembawa: document.getElementById('mediaPembawa').value.trim(),
+                volume: document.getElementById('volume').value,
+                satuanVolume: document.getElementById('satuanVolume').value,
+                tindakan: document.getElementById('tindakan').value,
+                // Metadata Berita Acara Quarantine Bin
+                baNomor: document.getElementById('baNomor').value.trim(),
+                baPukul: document.getElementById('baPukul').value,
+                baKategoriMp: document.getElementById('baKategoriMp').value,
+                baPejabatNama: document.getElementById('baPejabatNama').value.trim(),
+                baPejabatNip: document.getElementById('baPejabatNip').value.trim(),
+                baPejabatJabatan: document.getElementById('baPejabatJabatan').value.trim(),
+                baTempatKeluar: document.getElementById('baTempatKeluar').value.trim(),
+                baKeteranganMp: document.getElementById('baKeteranganMp').value.trim(),
+                fotoIdBase64: fotoIdBase64,
+                fotoKomoditasBase64: fotoKomoditasBase64,
+                createdAt: new Date().toISOString(),
+                syncStatus: 'pending'
+            };
+        }
+
+        function resetFormUI() {
+            document.getElementById('reportForm').reset();
+            setDefaultDateTime();
+            document.getElementById('quarantineBinFields').classList.add('hidden');
+            document.getElementById('previewId').classList.add('hidden');
+            document.getElementById('previewId').src = '';
+            document.getElementById('previewKomoditas').classList.add('hidden');
+            document.getElementById('previewKomoditas').src = '';
+            ['pelabuhanMuatLainnya', 'pelabuhanBongkarLainnya', 'alatAngkutLainnya'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('hidden');
+                el.required = false;
+            });
+        }
+
+        async function sendPayloadToGoogleScript(payload) {
+            if (!navigator.onLine) {
+                throw new Error('Perangkat sedang offline.');
+            }
+            const { localId, createdAt, syncStatus, ...cleanPayload } = payload;
+
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify(cleanPayload)
+            });
+        }
+
+        document.getElementById('saveDraftBtn').addEventListener('click', async function() {
+            const form = document.getElementById('reportForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const btn = this;
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+
+            try {
+                const data = await collectFormData();
+                data.syncStatus = 'pending';
+                const newId = await saveToIndexedDB(data);
+                data.localId = newId;
+                await renderLocalRecords();
+                resetFormUI();
+
+                const extraBtn = data.tindakan === 'Quarantine Bin'
+                    ? { label: 'Cetak BA Quarantine Bin', onClick: () => openBeritaAcaraModal(data) }
+                    : null;
+
+                showModal(
+                    'Tersimpan di Perangkat!',
+                    'Laporan berhasil disimpan ke IndexedDB lokal dengan status "Tertunda". Anda dapat mengirimnya ke server kapan saja saat sinyal stabil.',
+                    'success',
+                    null,
+                    extraBtn
+                );
+            } catch (err) {
+                console.error(err);
+                showModal('Gagal Menyimpan Lokal', 'Terjadi kesalahan saat menyimpan ke IndexedDB: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        });
+
         document.getElementById('reportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
             const originalBtnHtml = submitBtn.innerHTML;
             
-            // Ubah tombol jadi loading
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses & Menyimpan Data...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan & Mengirim...';
             submitBtn.disabled = true;
             submitBtn.classList.replace('bg-barantin-teal', 'bg-gray-500');
             submitBtn.classList.replace('border-barantin-gold', 'border-gray-500');
 
+            let savedLocalId = null;
+            let reportData = null;
+
             try {
-                const fotoIdFile = document.getElementById('fotoId').files[0];
-                const fotoKomoditasFile = document.getElementById('fotoKomoditas').files[0];
+                reportData = await collectFormData();
+                savedLocalId = await saveToIndexedDB(reportData);
+                reportData.localId = savedLocalId;
 
-                // Konversi file ke base64
-                const fotoIdBase64 = await getBase64(fotoIdFile);
-                const fotoKomoditasBase64 = await getBase64(fotoKomoditasFile);
+                await sendPayloadToGoogleScript(reportData);
 
-                // Nomor Dokumen akan dibuat otomatis oleh Google Apps Script, tidak perlu dikirim dari sini
-                const data = {
-                    nama: document.getElementById('nama').value,
-                    identitas: document.getElementById('identitas').value,
-                    tanggal: document.getElementById('tanggal').value,
-                    satuanPelayanan: document.getElementById('satpel').value,
-                    bidang: document.getElementById('bidang').value,
-                    pelabuhanMuat: document.getElementById('pelabuhanMuat').value === 'lainnya' ? document.getElementById('pelabuhanMuatLainnya').value : document.getElementById('pelabuhanMuat').value,
-                    pelabuhanBongkar: document.getElementById('pelabuhanBongkar').value === 'lainnya' ? document.getElementById('pelabuhanBongkarLainnya').value : document.getElementById('pelabuhanBongkar').value,
-                    alatAngkut: document.getElementById('alatAngkut').value === 'lainnya' ? document.getElementById('alatAngkutLainnya').value : document.getElementById('alatAngkut').value,
-                    mediaPembawa: document.getElementById('mediaPembawa').value,
-                    volume: document.getElementById('volume').value,
-                    satuanVolume: document.getElementById('satuanVolume').value,
-                    tindakan: document.getElementById('tindakan').value,
-                    fotoIdBase64: fotoIdBase64,
-                    fotoKomoditasBase64: fotoKomoditasBase64
-                };
+                reportData.syncStatus = 'synced';
+                await saveToIndexedDB(reportData);
 
-                // Kirim ke Google Apps Script
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // BARIS INI DITAMBAHKAN
-                    headers: {
-                        'Content-Type': 'text/plain', // Mengelabui browser agar tidak preflight
-                    },
-                    body: JSON.stringify(data)
-                });
+                await renderLocalRecords();
+                resetFormUI();
 
-                // Karena no-cors, kita tidak bisa membaca JSON balasan dari server (result.status).
-                // Kita asumsikan jika tidak masuk catch, berarti fetch berhasil dikirim.
-                
-                alert(`SUKSES!\nLaporan Anda telah terkirim ke sistem.\n(Nomor Dokumen otomatis terbuat di dalam Spreadsheet).`);
-                
-                // Reset form dan preview
-                document.getElementById('reportForm').reset();
-                document.getElementById('tanggal').valueAsDate = new Date();
-                document.getElementById('previewId').classList.add('hidden');
-                document.getElementById('previewKomoditas').classList.add('hidden');
-                
-                // Sembunyikan input 'lainnya' jika sebelumnya terbuka
-                ['pelabuhanMuatLainnya', 'pelabuhanBongkarLainnya', 'alatAngkutLainnya'].forEach(id => {
-                    document.getElementById(id).classList.add('hidden');
-                });
-                } else {
-                    throw new Error(result.message);
-                }
+                const extraBtn = reportData.tindakan === 'Quarantine Bin'
+                    ? { label: 'Cetak BA Quarantine Bin', onClick: () => openBeritaAcaraModal(reportData) }
+                    : null;
+
+                showModal(
+                    'SUKSES TERKIRIM!',
+                    'Laporan telah dicadangkan di IndexedDB perangkat DAN berhasil dikirim ke Google Spreadsheet.\n(Nomor Dokumen otomatis dibuat di Spreadsheet).',
+                    'success',
+                    null,
+                    extraBtn
+                );
 
             } catch (error) {
                 console.error('Error detail:', error);
-                alert('Gagal menyimpan laporan. Pastikan jaringan stabil. Error: ' + error.message);
+                await renderLocalRecords();
+                
+                if (savedLocalId) {
+                    resetFormUI();
+                    const extraBtn = reportData && reportData.tindakan === 'Quarantine Bin'
+                        ? { label: 'Cetak BA Quarantine Bin', onClick: () => openBeritaAcaraModal(reportData) }
+                        : null;
+
+                    showModal(
+                        'Tersimpan Lokal (Kirim Tertunda)',
+                        'Data & foto Anda SUDAH AMAN tersimpan di IndexedDB perangkat, namun pengiriman ke Google Server tertunda karena koneksi (' + error.message + ').\n\nSilakan klik tombol "Kirim Ulang Tertunda" di bagian bawah saat internet stabil.',
+                        'warning',
+                        null,
+                        extraBtn
+                    );
+                } else {
+                    showModal('Gagal Memproses Data', 'Terjadi kesalahan: ' + error.message, 'error');
+                }
             } finally {
-                // Kembalikan tombol ke kondisi semula
                 submitBtn.innerHTML = originalBtnHtml;
                 submitBtn.disabled = false;
                 submitBtn.classList.replace('bg-gray-500', 'bg-barantin-teal');
                 submitBtn.classList.replace('border-gray-500', 'border-barantin-gold');
+            }
+        });
+
+        // === RENDER & AKSI RIWAYAT INDEXEDDB ===
+
+        async function renderLocalRecords() {
+            const container = document.getElementById('localRecordsContainer');
+            const countSpan = document.getElementById('totalLocalCount');
+
+            try {
+                const records = await getAllFromIndexedDB();
+                countSpan.textContent = records.length;
+
+                if (records.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            <i class="fas fa-folder-open text-3xl text-gray-300 mb-2"></i>
+                            <p class="text-sm text-gray-500 font-medium">Belum ada laporan tersimpan di IndexedDB perangkat ini.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = records.map(rec => {
+                    const isSynced = rec.syncStatus === 'synced';
+                    const isQB = rec.tindakan === 'Quarantine Bin';
+                    const badgeHtml = isSynced
+                        ? `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800"><i class="fas fa-check-circle mr-1"></i> Terkirim</span>`
+                        : `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-100 text-amber-800"><i class="fas fa-clock mr-1"></i> Tertunda (Lokal)</span>`;
+
+                    const hasFotoId = rec.fotoIdBase64 ? '<i class="fas fa-id-card text-teal-700" title="Ada Foto ID"></i>' : '';
+                    const hasFotoKom = rec.fotoKomoditasBase64 ? '<i class="fas fa-camera text-teal-700" title="Ada Foto Komoditas"></i>' : '';
+
+                    return `
+                        <div class="border border-gray-200 rounded-xl p-3.5 hover:border-barantin-gold transition bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="space-y-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="font-bold text-barantin-teal text-sm">${escapeHtml(rec.nama)}</span>
+                                    <span class="text-xs text-gray-500">(${escapeHtml(rec.identitas)})</span>
+                                    ${badgeHtml}
+                                    <span class="text-xs space-x-1">${hasFotoId} ${hasFotoKom}</span>
+                                </div>
+                                <p class="text-xs text-gray-600">
+                                    <span class="font-semibold">${escapeHtml(rec.mediaPembawa)}</span> (${escapeHtml(rec.volume)} ${escapeHtml(rec.satuanVolume)}) &bull;
+                                    Tindakan: <span class="font-medium text-barantin-brown">${escapeHtml(rec.tindakan)}</span>
+                                </p>
+                                <p class="text-[11px] text-gray-400">
+                                    <i class="far fa-calendar-alt mr-1"></i> ${escapeHtml(rec.tanggal)} &bull; Satpel ${escapeHtml(rec.satuanPelayanan)} (${escapeHtml(rec.bidang)}) &bull; ${escapeHtml(rec.pelabuhanMuat)} &rarr; ${escapeHtml(rec.pelabuhanBongkar)}
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 shrink-0 self-end sm:self-center">
+                                ${isQB ? `
+                                    <button type="button" onclick="openBAFromLocalId(${rec.localId})" class="bg-amber-600 text-white hover:bg-amber-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition shadow-xs" title="Cetak Berita Acara Quarantine Bin">
+                                        <i class="fas fa-print mr-1"></i> BA Quarantine Bin
+                                    </button>
+                                ` : ''}
+                                ${!isSynced ? `
+                                    <button type="button" onclick="syncSingleRecord(${rec.localId})" class="bg-barantin-teal text-barantin-gold hover:bg-teal-900 text-xs font-semibold px-3 py-1.5 rounded-lg transition" title="Kirim ke Google Spreadsheet">
+                                        <i class="fas fa-paper-plane mr-1"></i> Kirim
+                                    </button>
+                                ` : ''}
+                                <button type="button" onclick="viewRecordDetail(${rec.localId})" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 text-xs font-medium px-2.5 py-1.5 rounded-lg transition" title="Lihat Detail & Foto">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" onclick="confirmDeleteRecord(${rec.localId})" class="bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-medium px-2.5 py-1.5 rounded-lg transition" title="Hapus dari Perangkat">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Gagal merender data lokal:', err);
+                container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">Gagal membaca database lokal: ${err.message}</p>`;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function syncSingleRecord(localId) {
+            try {
+                const record = await getRecordById(localId);
+                if (!record) return;
+
+                await sendPayloadToGoogleScript(record);
+                record.syncStatus = 'synced';
+                await saveToIndexedDB(record);
+                await renderLocalRecords();
+                showModal('Berhasil Dikirim!', `Laporan atas nama "${record.nama}" berhasil dikirim ke server.`, 'success');
+            } catch (err) {
+                showModal('Gagal Mengirim', 'Pastikan koneksi internet aktif. Error: ' + err.message, 'error');
+            }
+        }
+
+        async function syncAllPending() {
+            const records = await getAllFromIndexedDB();
+            const pending = records.filter(r => r.syncStatus !== 'synced');
+
+            if (pending.length === 0) {
+                showModal('Semua Terkirim', 'Tidak ada laporan tertunda di perangkat ini.', 'success');
+                return;
+            }
+
+            let successCount = 0;
+            for (const rec of pending) {
+                try {
+                    await sendPayloadToGoogleScript(rec);
+                    rec.syncStatus = 'synced';
+                    await saveToIndexedDB(rec);
+                    successCount++;
+                } catch (e) {
+                    console.error('Gagal sync record ID:', rec.localId, e);
+                }
+            }
+
+            await renderLocalRecords();
+            if (successCount === pending.length) {
+                showModal('Sinkronisasi Selesai', `Berhasil mengirim ${successCount} laporan tertunda ke server.`, 'success');
+            } else {
+                showModal('Sinkronisasi Sebagian', `${successCount} dari ${pending.length} laporan berhasil dikirim. Periksa kembali koneksi internet Anda.`, 'warning');
+            }
+        }
+
+        function confirmDeleteRecord(localId) {
+            showModal(
+                'Hapus Data Lokal?',
+                'Data ini akan dihapus permanen dari penyimpanan IndexedDB browser ini. Lanjutkan?',
+                'warning',
+                async () => {
+                    await deleteFromIndexedDB(localId);
+                    await renderLocalRecords();
+                }
+            );
+        }
+
+        async function viewRecordDetail(localId) {
+            const rec = await getRecordById(localId);
+            if (!rec) return;
+
+            const content = document.getElementById('detailModalContent');
+            content.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+                    <div><span class="text-gray-400 text-xs block">Nama Pelanggar</span><strong>${escapeHtml(rec.nama)}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">No. Identitas</span><strong>${escapeHtml(rec.identitas)}</strong></div>
+                    <div class="sm:col-span-2"><span class="text-gray-400 text-xs block">Alamat</span><strong>${escapeHtml(rec.alamatPelanggar || '-')}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">Tanggal Laporan</span><strong>${escapeHtml(rec.tanggal)}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">Satpel / Bidang</span><strong>${escapeHtml(rec.satuanPelayanan)} / ${escapeHtml(rec.bidang)}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">Pelabuhan Muat</span><strong>${escapeHtml(rec.pelabuhanMuat)}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">Pelabuhan Bongkar</span><strong>${escapeHtml(rec.pelabuhanBongkar)}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">Alat Angkut</span><strong>${escapeHtml(rec.alatAngkut)}</strong></div>
+                    <div><span class="text-gray-400 text-xs block">Komoditas & Volume</span><strong>${escapeHtml(rec.mediaPembawa)} (${escapeHtml(rec.volume)} ${escapeHtml(rec.satuanVolume)})</strong></div>
+                    <div class="sm:col-span-2"><span class="text-gray-400 text-xs block">Tindakan Karantina</span><strong class="text-barantin-teal">${escapeHtml(rec.tindakan)}</strong></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-600 mb-1">Foto ID (KTP/Paspor)</p>
+                        ${rec.fotoIdBase64
+                            ? `<img src="${rec.fotoIdBase64}" class="w-full max-h-48 object-contain rounded-lg border bg-black/5">`
+                            : `<div class="p-6 text-center text-xs text-gray-400 border border-dashed rounded-lg">Tidak ada foto ID</div>`}
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-600 mb-1">Foto Komoditas</p>
+                        ${rec.fotoKomoditasBase64
+                            ? `<img src="${rec.fotoKomoditasBase64}" class="w-full max-h-48 object-contain rounded-lg border bg-black/5">`
+                            : `<div class="p-6 text-center text-xs text-gray-400 border border-dashed rounded-lg">Tidak ada foto komoditas</div>`}
+                    </div>
+                </div>
+            `;
+
+            const footer = document.getElementById('detailModalFooter');
+            footer.innerHTML = `
+                <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden'); openBeritaAcaraModal(${JSON.stringify(rec).replace(/"/g, '&quot;')});" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 flex items-center">
+                    <i class="fas fa-print mr-1.5"></i> Cetak Berita Acara
+                </button>
+                <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800">Tutup</button>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        async function exportToCSV() {
+            const records = await getAllFromIndexedDB();
+            if (records.length === 0) {
+                showModal('Data Kosong', 'Belum ada data di penyimpanan lokal untuk diekspor.', 'warning');
+                return;
+            }
+
+            const headers = [
+                'ID_Lokal', 'Status_Kirim', 'Tanggal', 'Satpel', 'Bidang',
+                'Nama_Pelanggar', 'No_Identitas', 'Alamat', 'Pelabuhan_Muat', 'Pelabuhan_Bongkar',
+                'Alat_Angkut', 'Media_Pembawa', 'Volume', 'Satuan', 'Tindakan', 'Nomor_BA', 'Waktu_Input'
+            ];
+
+            const rows = records.map(r => [
+                r.localId,
+                r.syncStatus === 'synced' ? 'Terkirim' : 'Tertunda',
+                r.tanggal,
+                r.satuanPelayanan,
+                r.bidang,
+                r.nama,
+                `'${r.identitas}`,
+                r.alamatPelanggar || '',
+                r.pelabuhanMuat,
+                r.pelabuhanBongkar,
+                r.alatAngkut,
+                r.mediaPembawa,
+                r.volume,
+                r.satuanVolume,
+                r.tindakan,
+                r.baNomor || '',
+                r.createdAt
+            ].map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(','));
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Si-Pijar_Backup_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            setDefaultDateTime();
+            updateNetworkStatus();
+            try {
+                await initIndexedDB();
+                await renderLocalRecords();
+            } catch (e) {
+                console.error('Inisialisasi DB gagal:', e);
             }
         });
     </script>
